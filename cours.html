@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon carnet de cours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --slate: #22282A; --slate-light: #2E3638; --paper: #FBF7EE; --paper-dim: #F0EBDD;
+    --ink: #2A2620; --ink-soft: #6B6558; --amber: #D9A441; --teal: #4F8F82;
+    --denim: #5C6FA3; --brick: #B5583C; --chalk: #F1EEE4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--slate); color: var(--chalk); min-height: 100vh; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 22px 56px;
+    border-bottom: 1px solid rgba(241,238,228,0.08);
+    background: radial-gradient(circle at 10% 0%, rgba(217,164,65,0.06), transparent 40%), var(--slate);
+    position: relative; z-index: 50; }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand .mark { font-family: 'Caveat', cursive; font-weight: 700; font-size: 28px; color: var(--chalk); }
+  .brand .eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); font-weight: 600; }
+
+  .who { position: relative; }
+  .who-trigger { display: flex; align-items: center; gap: 12px; border: 1px solid transparent; background: transparent;
+    padding: 6px 10px 6px 6px; border-radius: 999px; cursor: pointer; font-family: 'Space Grotesk', sans-serif;
+    transition: background 0.2s ease, border-color 0.2s ease; }
+  .who-trigger:hover, .who-trigger[aria-expanded="true"] { background: rgba(241,238,228,0.06); border-color: rgba(241,238,228,0.14); }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--amber), var(--brick));
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--slate); flex-shrink: 0; }
+  .who-trigger .greeting { font-size: 14px; color: rgba(241,238,228,0.85); text-align: left; }
+  .who-trigger .greeting strong { display: block; color: var(--chalk); font-weight: 600; font-size: 14.5px; }
+  .who-trigger .greeting span { font-size: 11px; color: rgba(241,238,228,0.45); }
+  .chev { color: rgba(241,238,228,0.45); font-size: 10px; transition: transform 0.2s ease; margin-left: 2px; }
+  .who-trigger[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .who-menu { position: absolute; top: calc(100% + 10px); right: 0; min-width: 220px; background: var(--paper); color: var(--ink);
+    border-radius: 12px; box-shadow: 0 18px 40px rgba(0,0,0,0.35); padding: 8px; opacity: 0; transform: translateY(-6px);
+    pointer-events: none; transition: opacity 0.16s ease, transform 0.16s ease; }
+  .who-menu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .who-menu .menu-head { padding: 10px 12px 12px; border-bottom: 1px solid rgba(42,38,32,0.1); margin-bottom: 6px; }
+  .who-menu .menu-head .name { font-weight: 600; font-size: 14px; }
+  .who-menu .menu-head .email { font-size: 12px; color: var(--ink-soft); margin-top: 2px; word-break: break-all; }
+  .menu-item { display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: transparent;
+    text-align: left; padding: 10px 12px; border-radius: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 14px;
+    font-weight: 500; color: var(--ink); cursor: pointer; text-decoration: none; }
+  .menu-item:hover { background: var(--paper-dim); }
+  .menu-item .ico { font-size: 15px; width: 18px; text-align: center; }
+  .menu-item.danger { color: var(--brick); }
+
+  main { padding: 48px 56px 100px; max-width: 1080px; margin: 0 auto; }
+
+  .breadcrumb { font-size: 13px; color: rgba(241,238,228,0.5); margin-bottom: 10px; }
+  .breadcrumb a { color: rgba(241,238,228,0.65); text-decoration: none; font-weight: 600; }
+  .breadcrumb a:hover { color: var(--teal); }
+
+  .page-head { margin-bottom: 28px; }
+  .page-head h1 { font-family: 'Caveat', cursive; font-weight: 700; font-size: 42px; line-height: 1.1; margin-bottom: 6px; }
+  .page-head p { color: rgba(241,238,228,0.55); font-size: 14.5px; max-width: 640px; line-height: 1.5; }
+
+  .tag { display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; padding: 3px 9px; border-radius: 999px; margin-left: 10px; vertical-align: 2px; }
+  .tag.optional { background: rgba(217,164,65,0.18); color: var(--amber); }
+
+  .progress-block { margin-top: 20px; max-width: 420px; }
+  .progress-block .lbl { font-size: 12.5px; color: rgba(241,238,228,0.5); margin-bottom: 6px; }
+  .progress-track { height: 9px; background: rgba(241,238,228,0.1); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--teal); border-radius: 999px; transition: width 0.4s ease; }
+
+  .panel { background: var(--paper); color: var(--ink); border-radius: 14px; box-shadow: 0 14px 32px rgba(0,0,0,0.28); overflow: hidden; }
+  .state-box { padding: 40px; text-align: center; color: var(--ink-soft); font-size: 14px; }
+
+  .tree { padding: 14px 10px 20px; }
+  .tree-node { position: relative; }
+  .tree-children { margin-left: 23px; padding-left: 14px; border-left: 1px dashed rgba(42,38,32,0.18); display: none; }
+  .tree-children.open { display: block; }
+
+  .node-row { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 8px; }
+  .node-row.clickable:hover { background: rgba(42,38,32,0.045); }
+  .node-row.locked { opacity: 0.55; }
+  .node-row.current { background: rgba(217,164,65,0.14); }
+
+  .node-toggle { width: 22px; height: 22px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer; color: var(--ink-soft); border-radius: 6px; }
+  .node-toggle:hover { background: rgba(42,38,32,0.08); }
+  .node-toggle svg { transition: transform 0.15s ease; }
+  .node-toggle.open svg { transform: rotate(90deg); }
+  .node-toggle.hidden { visibility: hidden; cursor: default; }
+
+  .node-icon { width: 22px; flex-shrink: 0; text-align: center; font-size: 16px; }
+  .node-title { flex: 1; min-width: 0; font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .node-title .type-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    background: rgba(92,111,163,0.12); color: var(--denim); padding: 2px 7px; border-radius: 999px; margin-right: 8px; vertical-align: 1px; }
+  .node-count { font-size: 11.5px; color: var(--ink-soft); flex-shrink: 0; margin-right: 2px; white-space: nowrap; }
+  .lock-note { font-size: 11px; color: var(--ink-soft); flex-shrink: 0; white-space: nowrap; }
+  .status-dot { font-size: 14px; flex-shrink: 0; width: 20px; text-align: center; }
+  .status-dot.done { color: var(--teal); }
+  .status-dot.todo { color: rgba(42,38,32,0.25); }
+
+  .node-empty { font-size: 12.5px; color: var(--ink-soft); padding: 8px 10px 14px 45px; }
+
+  a.activity-link { text-decoration: none; color: inherit; }
+
+  @media (max-width: 720px) {
+    .topbar { padding: 18px 24px; flex-wrap: wrap; gap: 12px; }
+    main { padding: 32px 24px 56px; }
+    .who-trigger .greeting { display: none; }
+    .tree-children { margin-left: 14px; padding-left: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="mark">Mon carnet</span>
+    <span class="eyebrow">Contenu du cours</span>
+  </div>
+
+  <div class="who">
+    <button class="who-trigger" id="who-trigger" aria-haspopup="true" aria-expanded="false">
+      <span class="avatar" id="avatar-initial">…</span>
+      <span class="greeting">
+        <strong id="greeting-name">…</strong>
+        <span>Voir mon profil</span>
+      </span>
+      <span class="chev">▾</span>
+    </button>
+
+    <div class="who-menu" id="who-menu" role="menu">
+      <div class="menu-head">
+        <div class="name" id="menu-name">…</div>
+        <div class="email" id="menu-email">…</div>
+      </div>
+      <a class="menu-item" href="settings.html" role="menuitem">
+        <span class="ico">⚙️</span> Paramètres
+      </a>
+      <button class="menu-item danger" id="btn-logout" role="menuitem">
+        <span class="ico">↪</span> Se déconnecter
+      </button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="breadcrumb"><a href="dashboard.html">← Tes cours</a></div>
+
+  <div class="page-head">
+    <h1 id="page-title">…<span id="oblig-tag"></span></h1>
+    <p id="page-desc"></p>
+    <div class="progress-block" id="progress-block" style="display:none;">
+      <div class="lbl" id="progress-label"></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="state-box" id="state-box">Chargement du cours...</div>
+    <div class="tree" id="tree" style="display:none;"></div>
+  </div>
+</main>
+
+<script>
+  const SUPABASE_URL = 'https://zahbiiddqtjcbggdtevt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_HzPYCgN_qyi29hzPi8Q_wA_r0oiKj83';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const params = new URLSearchParams(window.location.search);
+  const coursId = params.get('id') || params.get('cours_id');
+
+  const stateBox = document.getElementById('state-box');
+  const treeEl = document.getElementById('tree');
+  const pageTitle = document.getElementById('page-title');
+  const oblig = document.getElementById('oblig-tag');
+  const pageDesc = document.getElementById('page-desc');
+  const progressBlock = document.getElementById('progress-block');
+  const progressLabel = document.getElementById('progress-label');
+  const progressFill = document.getElementById('progress-fill');
+
+  const greetingName = document.getElementById('greeting-name');
+  const avatarInitial = document.getElementById('avatar-initial');
+  const menuName = document.getElementById('menu-name');
+  const menuEmail = document.getElementById('menu-email');
+  const btnLogout = document.getElementById('btn-logout');
+  const whoTrigger = document.getElementById('who-trigger');
+  const whoMenu = document.getElementById('who-menu');
+
+  const CHEVRON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>';
+  const TYPE_ICONS = { cours: '📘', exercice: '✏️', fiche: '🗒️', test: '✅', video: '🎬' };
+
+  function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+  function countLabel(n, singular, plural) { return n + ' ' + (n > 1 ? plural : singular); }
+
+  function closeMenu() { whoMenu.classList.remove('open'); whoTrigger.setAttribute('aria-expanded', 'false'); }
+  whoTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = whoMenu.classList.toggle('open');
+    whoTrigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  document.addEventListener('click', (e) => { if (!whoMenu.contains(e.target) && !whoTrigger.contains(e.target)) closeMenu(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+
+  btnLogout.addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'index.html';
+  });
+
+  let tree = [];
+
+  // ---- Construit l'arbre modules -> sections -> activités et calcule le
+  // verrouillage séquentiel : une section n'est déverrouillée que si toutes
+  // les sections précédentes (dans l'ordre global du cours) sont terminées.
+  function buildLockMap(termineIds) {
+    const flatSections = [];
+    tree.forEach(mod => mod.sections.forEach(sec => flatSections.push(sec)));
+
+    let previousOk = true;
+    flatSections.forEach(sec => {
+      sec.locked = !previousOk;
+      const total = sec.activites.length;
+      const faites = sec.activites.filter(a => termineIds.has(a.id)).length;
+      sec.total = total;
+      sec.faites = faites;
+      sec.complete = total === 0 ? true : faites === total;
+      previousOk = previousOk && sec.complete;
+    });
+
+    // Ouvre par défaut la première section accessible et pas encore terminée,
+    // pour que l'élève retombe directement là où il en est.
+    const current = flatSections.find(s => !s.locked && !s.complete);
+    if (current) current.expanded = true;
+  }
+
+  async function loadUserGreeting(user) {
+    const prenom = user.user_metadata?.prenom || user.email.split('@')[0];
+    const nom = user.user_metadata?.nom || '';
+    greetingName.textContent = prenom;
+    avatarInitial.textContent = prenom.charAt(0).toUpperCase();
+    menuName.textContent = (prenom + ' ' + nom).trim() || prenom;
+    menuEmail.textContent = user.email;
+  }
+
+  async function load(userId) {
+    if (!coursId) {
+      stateBox.textContent = "Aucun cours ciblé.";
+      return;
+    }
+
+    const { data: cours, error: coursErr } = await supabaseClient
+      .from('cours').select('id, titre, description, obligatoire').eq('id', coursId).single();
+
+    if (coursErr || !cours) {
+      stateBox.textContent = "Ce cours est introuvable.";
+      return;
+    }
+
+    pageTitle.childNodes[0].textContent = cours.titre;
+    if (cours.obligatoire === false) {
+      oblig.innerHTML = '<span class="tag optional">Optionnel</span>';
+    }
+    pageDesc.textContent = cours.description || '';
+
+    const { data: modules } = await supabaseClient
+      .from('modules').select('id, titre, ordre').eq('cours_id', coursId).order('ordre');
+
+    const moduleIds = (modules || []).map(m => m.id);
+    let sections = [];
+    if (moduleIds.length) {
+      const { data } = await supabaseClient
+        .from('sections').select('id, titre, ordre, module_id').in('module_id', moduleIds).order('ordre');
+      sections = data || [];
+    }
+
+    const sectionIds = sections.map(s => s.id);
+    let activites = [];
+    if (sectionIds.length) {
+      const { data } = await supabaseClient
+        .from('activites').select('id, titre, type, ordre, section_id').in('section_id', sectionIds).order('ordre');
+      activites = data || [];
+    }
+
+    const { data: progression } = await supabaseClient
+      .from('progression').select('activite_id, termine').eq('user_id', userId);
+    const termineIds = new Set((progression || []).filter(p => p.termine).map(p => p.activite_id));
+
+    tree = (modules || []).map(m => ({
+      ...m,
+      expanded: true,
+      sections: sections.filter(s => s.module_id === m.id).map(s => ({
+        ...s,
+        expanded: false,
+        activites: activites.filter(a => a.section_id === s.id).map(a => ({ ...a, done: termineIds.has(a.id) }))
+      }))
+    }));
+
+    buildLockMap(termineIds);
+
+    let totalGlobal = 0, faitesGlobal = 0;
+    tree.forEach(m => m.sections.forEach(s => { totalGlobal += s.total; faitesGlobal += s.faites; }));
+    if (totalGlobal > 0) {
+      const pct = Math.round((faitesGlobal / totalGlobal) * 100);
+      progressLabel.textContent = faitesGlobal + ' / ' + totalGlobal + ' activités terminées — ' + pct + '%';
+      progressFill.style.width = pct + '%';
+      progressBlock.style.display = 'block';
+    }
+
+    if (tree.length === 0) {
+      stateBox.textContent = "Ce cours n'a pas encore de contenu.";
+      return;
+    }
+
+    stateBox.style.display = 'none';
+    treeEl.style.display = 'block';
+    renderTree();
+  }
+
+  function renderTree() {
+    treeEl.innerHTML = '';
+    tree.forEach(mod => treeEl.appendChild(renderModule(mod)));
+  }
+
+  function renderModule(mod) {
+    const wrap = document.createElement('div');
+    wrap.className = 'tree-node';
+
+    const row = document.createElement('div');
+    row.className = 'node-row clickable';
+    row.innerHTML = `
+      <button class="node-toggle ${mod.expanded ? 'open' : ''}">${CHEVRON}</button>
+      <span class="node-icon">${mod.expanded ? '📂' : '📁'}</span>
+      <span class="node-title">${escapeHtml(mod.titre)}</span>
+      <span class="node-count">${countLabel(mod.sections.length, 'section', 'sections')}</span>
+    `;
+    const toggle = () => { mod.expanded = !mod.expanded; renderTree(); };
+    row.querySelector('.node-toggle').addEventListener('click', toggle);
+    row.querySelector('.node-title').addEventListener('click', toggle);
+    row.querySelector('.node-icon').addEventListener('click', toggle);
+    wrap.appendChild(row);
+
+    const childrenWrap = document.createElement('div');
+    childrenWrap.className = 'tree-children' + (mod.expanded ? ' open' : '');
+    if (mod.expanded) {
+      if (mod.sections.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'node-empty';
+        empty.textContent = "Aucune section pour l'instant.";
+        childrenWrap.appendChild(empty);
+      } else {
+        mod.sections.forEach(sec => childrenWrap.appendChild(renderSection(sec)));
+      }
+    }
+    wrap.appendChild(childrenWrap);
+    return wrap;
+  }
+
+  function renderSection(sec) {
+    const wrap = document.createElement('div');
+    wrap.className = 'tree-node';
+
+    const row = document.createElement('div');
+    row.className = 'node-row';
+    if (sec.locked) row.classList.add('locked');
+    else row.classList.add('clickable');
+    if (!sec.locked && !sec.complete && sec.expanded) row.classList.add('current');
+
+    const icon = sec.locked ? '🔒' : (sec.complete ? '✅' : (sec.expanded ? '📂' : '📁'));
+    const countTxt = sec.total > 0 ? (sec.faites + ' / ' + sec.total) : 'Vide';
+
+    row.innerHTML = `
+      <button class="node-toggle ${sec.expanded ? 'open' : ''} ${sec.locked ? 'hidden' : ''}">${CHEVRON}</button>
+      <span class="node-icon">${icon}</span>
+      <span class="node-title">${escapeHtml(sec.titre)}</span>
+      ${sec.locked
+        ? '<span class="lock-note">Termine la section précédente</span>'
+        : `<span class="node-count">${countTxt}</span>`}
+    `;
+
+    if (!sec.locked) {
+      const toggle = () => { sec.expanded = !sec.expanded; renderTree(); };
+      row.querySelector('.node-toggle').addEventListener('click', toggle);
+      row.querySelector('.node-title').addEventListener('click', toggle);
+      row.querySelector('.node-icon').addEventListener('click', toggle);
+    }
+    wrap.appendChild(row);
+
+    const childrenWrap = document.createElement('div');
+    childrenWrap.className = 'tree-children' + (!sec.locked && sec.expanded ? ' open' : '');
+    if (!sec.locked && sec.expanded) {
+      if (sec.activites.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'node-empty';
+        empty.textContent = "Aucune activité pour l'instant.";
+        childrenWrap.appendChild(empty);
+      } else {
+        sec.activites.forEach(a => childrenWrap.appendChild(renderActivite(a)));
+      }
+    }
+    wrap.appendChild(childrenWrap);
+    return wrap;
+  }
+
+  function renderActivite(a) {
+    const wrap = document.createElement('div');
+    wrap.className = 'tree-node';
+
+    const link = document.createElement('a');
+    link.className = 'activity-link';
+    link.href = 'activite.html?activite_id=' + a.id;
+
+    const row = document.createElement('div');
+    row.className = 'node-row clickable';
+    row.innerHTML = `
+      <span class="node-toggle hidden"></span>
+      <span class="node-icon">${TYPE_ICONS[a.type] || '📄'}</span>
+      <span class="node-title"><span class="type-tag">${escapeHtml(a.type || '—')}</span>${escapeHtml(a.titre)}</span>
+      <span class="status-dot ${a.done ? 'done' : 'todo'}">${a.done ? '✓' : '○'}</span>
+    `;
+    link.appendChild(row);
+    wrap.appendChild(link);
+    return wrap;
+  }
+
+  (async () => {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) { window.location.href = 'index.html'; return; }
+    await loadUserGreeting(session.user);
+    await load(session.user.id);
+  })();
+</script>
+
+</body>
+</html>

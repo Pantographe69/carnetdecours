@@ -319,6 +319,7 @@
   import Warning from 'https://esm.sh/@editorjs/warning@1.4.1';
   import Marker from 'https://esm.sh/@editorjs/marker@1.4.0';
   import Underline from 'https://esm.sh/@editorjs/underline@1.1.0';
+  import InlineCode from 'https://esm.sh/@editorjs/inline-code@1.5.2';
   const SUPABASE_URL = 'https://zahbiiddqtjcbggdtevt.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_HzPYCgN_qyi29hzPi8Q_wA_r0oiKj83';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -576,6 +577,71 @@
     }
   }
 
+  // ---- Outil inline "Formule" : sélectionne du texte -> équation LaTeX en ligne ----
+  // Ce outil sert aussi (et surtout) à déclarer une règle de sanitisation pour le
+  // <span class="inline-math">. Sans un outil inline enregistré pour ce tag,
+  // Editor.js le retire silencieusement de l'enregistrement (cf. explication
+  // plus bas, dans renderMathIntoSpan / applyMarkdownShortcuts).
+  class MathInlineTool {
+    static get isInline() { return true; }
+    static get title() { return 'Formule'; }
+
+    constructor({ api }) {
+      this.api = api;
+      this.button = null;
+    }
+
+    render() {
+      this.button = document.createElement('button');
+      this.button.type = 'button';
+      this.button.classList.add(this.api.styles.inlineToolButton);
+      this.button.textContent = '∑';
+      return this.button;
+    }
+
+    surround(range) {
+      if (!range || range.collapsed) return;
+      const selectedText = range.toString();
+      if (!selectedText.trim()) return;
+
+      const span = document.createElement('span');
+      span.className = 'inline-math';
+      span.contentEditable = 'false';
+      span.dataset.latex = selectedText;
+      renderMathIntoSpan(span);
+
+      range.deleteContents();
+      range.insertNode(span);
+
+      const zwsp = document.createTextNode('\u200B');
+      span.after(zwsp);
+
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      const newRange = document.createRange();
+      newRange.setStart(zwsp, zwsp.length);
+      newRange.collapse(true);
+      sel.addRange(newRange);
+    }
+
+    checkState(selection) {
+      const anchor = selection && selection.anchorNode;
+      return !!(anchor && anchor.parentElement && anchor.parentElement.closest('.inline-math'));
+    }
+
+    // Autorise le span produit ci-dessus (et par la conversion "$...$" à la volée)
+    // à survivre à l'enregistrement d'Editor.js.
+    static get sanitize() {
+      return {
+        span: {
+          class: 'inline-math',
+          'data-latex': true,
+          contenteditable: true
+        }
+      };
+    }
+  }
+
   // ---- Outil "image" maison : URL + légende, toujours centrée ----
   class ImageBlockTool {
     static get toolbox() {
@@ -758,6 +824,13 @@
       placeholder: 'Commence à écrire ici, ou tape "/" pour insérer un bloc...',
       data: existingData || { blocks: [] },
       tools: {
+        // Le paragraphe par défaut d'Editor.js retire les blocs vides à la sauvegarde
+        // (validate() -> false dès que le texte est vide). C'était la cause des lignes
+        // vides utilisées pour l'espacement qui disparaissaient au rechargement.
+        // preserveBlank: true les garde.
+        paragraph: {
+          config: { preserveBlank: true }
+        },
         header: {
           class: Header,
           inlineToolbar: true,
@@ -801,14 +874,38 @@
           class: VideoBlockTool
         },
         marker: Marker,
-        underline: Underline
+        underline: Underline,
+        inlineCode: InlineCode,
+        mathInline: MathInlineTool
       },
       onReady: () => {
         editorStateEl.style.display = 'none';
         document.getElementById('editorjs').style.display = 'block';
         enableMarkdownShortcuts();
+        hydrateMathSpans();
       }
     });
+  }
+
+  // Rend (ou re-rend) le KaTeX d'un <span class="inline-math" data-latex="...">.
+  // Séparé de convertMarkdownInText car réutilisé aussi au chargement (hydrateMathSpans),
+  // pour reconstruire l'affichage à partir du seul data-latex, qui lui a survécu
+  // à la sauvegarde (voir commentaire plus bas sur la liste blanche d'Editor.js).
+  function renderMathIntoSpan(span) {
+    const expr = span.dataset.latex || '';
+    if (!window.katex) return;
+    try {
+      span.innerHTML = window.katex.renderToString(expr, { throwOnError: true, output: 'html' });
+    } catch (e) {
+      span.innerHTML = '<span class="katex-error">' + escapeHtml(expr) + '</span>';
+    }
+  }
+
+  // Reconstruit l'affichage de toutes les formules en ligne présentes dans l'éditeur
+  // (utile après le chargement d'un contenu existant : Editor.js réinjecte le HTML
+  // sauvegardé tel quel, avec juste le data-latex, sans le rendu KaTeX).
+  function hydrateMathSpans() {
+    document.querySelectorAll('#editorjs .inline-math[data-latex]').forEach(renderMathIntoSpan);
   }
 
   // ---- Raccourcis markdown à la volée : *italique*, **gras**, `code`, $math$ ----
@@ -819,13 +916,15 @@
     let out = text;
     out = out.replace(/`([^`\n]+)`/g, '<code>$1</code>');
     out = out.replace(/\$([^$\n]+)\$/g, (match, expr) => {
-      if (!window.katex) return match;
-      try {
-        const html = window.katex.renderToString(expr, { throwOnError: true, output: 'html' });
-        return '<span class="inline-math" contenteditable="false">' + html + '</span>';
-      } catch (e) {
-        return '<span class="inline-math"><span class="katex-error">' + expr + '</span></span>';
-      }
+      // On ne stocke QUE la source LaTeX, dans data-latex, et pas le rendu KaTeX
+      // lui-même (plein de <span>/<svg> imbriqués). Editor.js ne garde à la sauvegarde
+      // que les balises listées dans le sanitize d'un outil inline enregistré (voir
+      // MathInlineTool.sanitize) : le <span class="inline-math"> avec sa classe et
+      // son data-latex passe, mais tout rendu KaTeX mis directement dedans aurait été
+      // démonté noeud par noeud et aurait laissé du texte tronqué/illisible.
+      // Le rendu visuel est ensuite (re)généré dans temp.querySelectorAll juste après
+      // ce replace, et à nouveau au chargement via hydrateMathSpans().
+      return '<span class="inline-math" contenteditable="false" data-latex="' + escapeHtml(expr) + '"></span>';
     });
     // Important : Editor.js n'autorise, au moment de la sauvegarde (editor.save()),
     // que les balises produites par ses propres outils inline (Bold -> <b>, Italic -> <i>).
@@ -858,6 +957,7 @@
     // Remplace uniquement ce nœud texte, en laissant le reste du bloc intact.
     const temp = document.createElement('span');
     temp.innerHTML = converted;
+    temp.querySelectorAll('.inline-math[data-latex]').forEach(renderMathIntoSpan);
     const frag = document.createDocumentFragment();
     while (temp.firstChild) frag.appendChild(temp.firstChild);
 

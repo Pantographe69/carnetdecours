@@ -264,6 +264,23 @@
 
   .add-form-actions { display: flex; gap: 10px; margin-top: 4px; }
 
+  /* ---- Toggle "cours obligatoire" ---- */
+  .switch-field { display: flex; align-items: center; gap: 12px; }
+  .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch-slider { position: absolute; inset: 0; cursor: pointer; background: rgba(42,38,32,0.2); border-radius: 999px; transition: background 0.15s ease; }
+  .switch-slider::before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background: var(--paper); border-radius: 50%; transition: transform 0.15s ease; }
+  .switch input:checked + .switch-slider { background: var(--teal); }
+  .switch input:checked + .switch-slider::before { transform: translateX(18px); }
+  .switch-copy .lbl { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .switch-copy .sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 1px; }
+
+  .oblig-pill { display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 1px; }
+  .oblig-pill.req { background: rgba(79,143,130,0.14); color: var(--teal); }
+  .oblig-pill.opt { background: rgba(217,164,65,0.16); color: var(--amber); }
+
   /* ---- Table / list of courses ---- */
   .admin-list { display: flex; flex-direction: column; }
 
@@ -416,6 +433,16 @@
         <label for="new-desc">Description</label>
         <textarea id="new-desc" rows="2" placeholder="Courte description du cours"></textarea>
       </div>
+      <div class="switch-field">
+        <label class="switch">
+          <input type="checkbox" id="new-obligatoire" checked>
+          <span class="switch-slider"></span>
+        </label>
+        <div class="switch-copy">
+          <div class="lbl">Cours obligatoire</div>
+          <div class="sub">Désactive si ce cours est facultatif pour les élèves.</div>
+        </div>
+      </div>
       <div class="add-form-actions">
         <button type="submit" class="btn btn-primary" id="btn-create">Créer le cours</button>
         <button type="button" class="btn btn-ghost" id="btn-cancel-add">Annuler</button>
@@ -496,7 +523,7 @@
     hideMsg(listMsg);
 
     const [{ data: cours, error: coursError }, { data: modules }, { data: sections }, { data: activites }] = await Promise.all([
-      supabaseClient.from('cours').select('id, titre, description').order('titre'),
+      supabaseClient.from('cours').select('id, titre, description, obligatoire').order('titre'),
       supabaseClient.from('modules').select('id, cours_id'),
       supabaseClient.from('sections').select('id, module_id'),
       supabaseClient.from('activites').select('id, section_id')
@@ -541,7 +568,9 @@
       row.innerHTML = `
         <div class="marker"></div>
         <div class="info">
-          <div class="name">${escapeHtml(c.titre)}</div>
+          <div class="name">${escapeHtml(c.titre)}${c.obligatoire === false
+            ? '<span class="oblig-pill opt">Optionnel</span>'
+            : '<span class="oblig-pill req">Obligatoire</span>'}</div>
           <div class="desc">${escapeHtml(c.description || 'Pas de description.')}</div>
           <div class="meta">${moduleCountFor(c.id)} module(s) · ${activiteCountFor(c.id)} activité(s)</div>
         </div>
@@ -574,6 +603,16 @@
           <label>Description</label>
           <textarea class="edit-desc" rows="2">${escapeHtml(c.description || '')}</textarea>
         </div>
+        <div class="switch-field">
+          <label class="switch">
+            <input type="checkbox" class="edit-obligatoire" ${c.obligatoire === false ? '' : 'checked'}>
+            <span class="switch-slider"></span>
+          </label>
+          <div class="switch-copy">
+            <div class="lbl">Cours obligatoire</div>
+            <div class="sub">Désactive si ce cours est facultatif pour les élèves.</div>
+          </div>
+        </div>
         <div class="edit-actions">
           <button type="submit" class="btn btn-primary">Enregistrer</button>
           <button type="button" class="btn btn-ghost edit-cancel">Annuler</button>
@@ -591,12 +630,13 @@
       e.preventDefault();
       const titre = row.querySelector('.edit-titre').value.trim();
       const description = row.querySelector('.edit-desc').value.trim();
+      const obligatoire = row.querySelector('.edit-obligatoire').checked;
 
       if (!titre) return;
 
       const { error } = await supabaseClient
         .from('cours')
-        .update({ titre, description })
+        .update({ titre, description, obligatoire })
         .eq('id', c.id);
 
       if (error) {
@@ -631,13 +671,14 @@
 
     const titre = document.getElementById('new-titre').value.trim();
     const description = document.getElementById('new-desc').value.trim();
+    const obligatoire = document.getElementById('new-obligatoire').checked;
 
     if (!titre) return;
 
     btnCreate.disabled = true;
     btnCreate.textContent = 'Création...';
 
-    const { error } = await supabaseClient.from('cours').insert({ titre, description });
+    const { error } = await supabaseClient.from('cours').insert({ titre, description, obligatoire });
 
     btnCreate.disabled = false;
     btnCreate.textContent = 'Créer le cours';

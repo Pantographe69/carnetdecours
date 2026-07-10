@@ -635,7 +635,7 @@
     // 2. Récupérer tous les cours
     const { data: cours, error: coursError } = await supabaseClient
       .from('cours')
-      .select('id, titre, description')
+      .select('id, titre, description, obligatoire')
       .order('titre');
 
     if (coursError) {
@@ -700,7 +700,7 @@
       card.innerHTML = `
         <div class="marker"></div>
         <div class="info">
-          <div class="kind">Cours</div>
+          <div class="kind">Cours${c.obligatoire === false ? ' · Optionnel' : ''}</div>
           <div class="name">${escapeHtml(c.titre)}</div>
           <div class="desc">${escapeHtml(c.description || '')}</div>
           ${total > 0 && faites === total ? '<span class="badge-done">🏆 Terminé</span>' : ''}
