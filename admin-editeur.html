@@ -13,6 +13,15 @@
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.8.1/dist/header.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/simple-image@1.6.0/dist/simple-image.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@2.7.6/dist/embed.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2.6.0/dist/quote.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@2.9.0/dist/code.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.4.0/dist/delimiter.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.3.0/dist/table.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.6.0/dist/checklist.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/warning@1.4.0/dist/warning.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@1.4.0/dist/marker.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@1.1.0/dist/underline.umd.min.js"></script>
 
 <style>
   :root {
@@ -37,7 +46,7 @@
   .link-btn:hover { border-color: var(--denim); color: var(--denim); }
   .link-btn.danger:hover { border-color: var(--brick); color: var(--brick); }
 
-  main { padding: 48px 56px 100px; max-width: 820px; margin: 0 auto; }
+  main { padding: 48px 56px 100px; max-width: 1180px; margin: 0 auto; }
 
   .breadcrumb { font-size: 13px; color: rgba(241,238,228,0.5); margin-bottom: 10px; }
   .breadcrumb a { color: rgba(241,238,228,0.65); text-decoration: none; font-weight: 600; }
@@ -67,14 +76,18 @@
     color: var(--ink);
     border-radius: 14px;
     box-shadow: 0 14px 32px rgba(0,0,0,0.28);
-    padding: 40px 48px 60px;
+    padding: 44px 64px 70px;
     min-height: 400px;
   }
 
-  #editorjs { font-size: 16px; }
+  #editorjs { font-size: 16px; max-width: 100%; }
+  #editorjs .codex-editor__redactor { padding-bottom: 120px !important; }
   #editorjs .ce-block__content, #editorjs .ce-toolbar__content { max-width: 100%; }
   #editorjs h1, #editorjs h2, #editorjs h3, #editorjs h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--ink); }
   #editorjs p { color: var(--ink); line-height: 1.6; }
+  #editorjs table { color: var(--ink); }
+  #editorjs code { background: rgba(42,38,32,0.06); }
+  #editorjs mark { background: rgba(217,164,65,0.35); }
 
   .state-box { padding: 60px; text-align: center; color: var(--ink-soft); font-size: 14px; }
 
@@ -127,7 +140,7 @@
   </div>
 
   <div class="hint-box">
-    <strong>Astuce :</strong> tape "/" dans l'éditeur pour insérer un titre, une image (via URL) ou une vidéo (colle simplement un lien YouTube/Vimeo, il s'intègre automatiquement).
+    <strong>Astuce :</strong> tape "/" dans l'éditeur pour insérer un titre, une liste, une checklist, une citation, un encadré d'alerte, du code, un tableau, un séparateur, une image (via URL) ou une vidéo (colle un lien YouTube/Vimeo). Sélectionne du texte pour le mettre en gras, italique, souligné ou surligné.
   </div>
 
   <div class="editor-panel">
@@ -206,6 +219,34 @@
           inlineToolbar: true,
           config: { levels: [2, 3, 4], defaultLevel: 2 }
         },
+        list: {
+          class: EditorjsList,
+          inlineToolbar: true,
+          config: { defaultStyle: 'unordered' }
+        },
+        checklist: {
+          class: Checklist,
+          inlineToolbar: true
+        },
+        quote: {
+          class: Quote,
+          inlineToolbar: true,
+          config: { quotePlaceholder: 'Citation', captionPlaceholder: 'Auteur / source' }
+        },
+        warning: {
+          class: Warning,
+          inlineToolbar: true,
+          config: { titlePlaceholder: 'Titre', messagePlaceholder: 'Message important' }
+        },
+        code: {
+          class: CodeTool
+        },
+        delimiter: Delimiter,
+        table: {
+          class: Table,
+          inlineToolbar: true,
+          config: { rows: 2, cols: 3 }
+        },
         image: {
           class: SimpleImage
         },
@@ -214,7 +255,9 @@
           config: {
             services: { youtube: true, vimeo: true }
           }
-        }
+        },
+        marker: Marker,
+        underline: Underline
       },
       onReady: () => {
         editorStateEl.style.display = 'none';
