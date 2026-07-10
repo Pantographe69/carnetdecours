@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon carnet de cours — Paramètres</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --slate: #22282A;
+    --slate-light: #2E3638;
+    --paper: #FBF7EE;
+    --paper-dim: #F0EBDD;
+    --ink: #2A2620;
+    --ink-soft: #6B6558;
+    --amber: #D9A441;
+    --teal: #4F8F82;
+    --denim: #5C6FA3;
+    --brick: #B5583C;
+    --chalk: #F1EEE4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--slate);
+    color: var(--chalk);
+    min-height: 100vh;
+  }
+
+  /* ============ TOP BAR ============ */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 56px;
+    border-bottom: 1px solid rgba(241,238,228,0.08);
+    background:
+      radial-gradient(circle at 10% 0%, rgba(217,164,65,0.06), transparent 40%),
+      var(--slate);
+  }
+
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+
+  .brand .mark {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--chalk);
+  }
+
+  .brand .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    font-weight: 600;
+  }
+
+  .back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: rgba(241,238,228,0.7);
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid rgba(241,238,228,0.16);
+    padding: 8px 16px;
+    border-radius: 999px;
+    transition: all 0.2s ease;
+  }
+
+  .back-link:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+
+  /* ============ MAIN ============ */
+  main {
+    padding: 48px 56px 80px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .page-head h1 {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 42px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .page-head p {
+    color: rgba(241,238,228,0.55);
+    font-size: 15px;
+    margin-bottom: 36px;
+  }
+
+  /* ---- Profile summary ---- */
+  .profile-banner {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--slate-light);
+    border: 1px solid rgba(241,238,228,0.08);
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-bottom: 32px;
+  }
+
+  .avatar-lg {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--brick));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--slate);
+    flex-shrink: 0;
+  }
+
+  .profile-banner .name {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--chalk);
+  }
+
+  .profile-banner .email {
+    font-size: 13px;
+    color: rgba(241,238,228,0.5);
+  }
+
+  /* ---- Cards / sections ---- */
+  .card {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 14px;
+    padding: 30px 32px;
+    box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+    margin-bottom: 24px;
+  }
+
+  .card h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .card .card-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 22px;
+  }
+
+  .row-two { display: flex; gap: 16px; }
+  .row-two .field { flex: 1; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+  .field:last-of-type { margin-bottom: 0; }
+
+  .field label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .field input {
+    border: none;
+    border-bottom: 2px solid rgba(42,38,32,0.15);
+    background: transparent;
+    padding: 8px 2px 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .field input:focus { border-bottom-color: var(--teal); }
+  .field input:disabled { color: var(--ink-soft); cursor: not-allowed; }
+  .field input::placeholder { color: rgba(42,38,32,0.3); }
+
+  .field .subnote {
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .actions {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .btn {
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--teal);
+    color: var(--paper);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+  .btn-primary:active { transform: translate(0,0); box-shadow: 1px 1px 0 var(--ink); }
+
+  .btn-primary[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .btn-danger-outline {
+    background: transparent;
+    color: var(--brick);
+    border: 1.5px solid rgba(181,88,60,0.4);
+  }
+
+  .btn-danger-outline:hover { background: rgba(181,88,60,0.08); }
+
+  .msg {
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    display: none;
+    line-height: 1.4;
+    margin-top: 16px;
+  }
+
+  .msg.show { display: block; }
+  .msg.error { background: rgba(181,88,60,0.12); color: var(--brick); }
+  .msg.success { background: rgba(79,143,130,0.12); color: var(--teal); }
+
+  /* ---- danger zone ---- */
+  .danger-zone {
+    border: 1px dashed rgba(181,88,60,0.4);
+    background: rgba(181,88,60,0.05);
+  }
+
+  .danger-zone h2 { color: var(--brick); }
+
+  button:focus-visible, input:focus-visible, a:focus-visible {
+    outline: 2px solid var(--denim);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 720px) {
+    .topbar { padding: 18px 24px; }
+    main { padding: 32px 24px 56px; }
+    .card { padding: 24px 20px; }
+    .row-two { flex-direction: column; gap: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="mark">Mon carnet</span>
+    <span class="eyebrow">Paramètres</span>
+  </div>
+  <a class="back-link" href="dashboard.html">← Retour au tableau de bord</a>
+</div>
+
+<main>
+  <div class="page-head">
+    <h1>Tes paramètres</h1>
+    <p>Gère ton profil et ton compte.</p>
+  </div>
+
+  <div class="profile-banner">
+    <div class="avatar-lg" id="avatar-initial">…</div>
+    <div>
+      <div class="name" id="banner-name">…</div>
+      <div class="email" id="banner-email">…</div>
+    </div>
+  </div>
+
+  <!-- ---- PROFIL ---- -->
+  <div class="card">
+    <h2>Informations personnelles</h2>
+    <p class="card-sub">Ces informations sont utilisées pour te saluer sur ton tableau de bord.</p>
+
+    <form id="form-profile">
+      <div class="row-two">
+        <div class="field">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" placeholder="Alex" required>
+        </div>
+        <div class="field">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" placeholder="Martin" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" disabled>
+        <span class="subnote">L'email ne peut pas être modifié ici.</span>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" id="btn-save-profile">Enregistrer</button>
+      </div>
+      <div class="msg" id="profile-msg"></div>
+    </form>
+  </div>
+
+  <!-- ---- MOT DE PASSE ---- -->
+  <div class="card">
+    <h2>Mot de passe</h2>
+    <p class="card-sub">Choisis un nouveau mot de passe pour ton compte.</p>
+
+    <form id="form-password">
+      <div class="field">
+        <label for="new-password">Nouveau mot de passe</label>
+        <input type="password" id="new-password" placeholder="8 caractères minimum" minlength="8" required>
+      </div>
+      <div class="field">
+        <label for="confirm-password">Confirmer le mot de passe</label>
+        <input type="password" id="confirm-password" placeholder="8 caractères minimum" minlength="8" required>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" id="btn-save-password">Mettre à jour</button>
+      </div>
+      <div class="msg" id="password-msg"></div>
+    </form>
+  </div>
+
+  <!-- ---- DECONNEXION ---- -->
+  <div class="card danger-zone">
+    <h2>Session</h2>
+    <p class="card-sub">Se déconnecter de ton compte sur cet appareil.</p>
+    <div class="actions">
+      <button type="button" class="btn btn-danger-outline" id="btn-logout">Se déconnecter</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  // ============ CONFIG SUPABASE ============
+  const SUPABASE_URL = 'https://zahbiiddqtjcbggdtevt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_HzPYCgN_qyi29hzPi8Q_wA_r0oiKj83';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const avatarInitial = document.getElementById('avatar-initial');
+  const bannerName = document.getElementById('banner-name');
+  const bannerEmail = document.getElementById('banner-email');
+  const prenomInput = document.getElementById('prenom');
+  const nomInput = document.getElementById('nom');
+  const emailInput = document.getElementById('email');
+
+  function showMsg(el, text, type) {
+    el.textContent = text;
+    el.className = 'msg show ' + type;
+  }
+  function hideMsg(el) { el.className = 'msg'; }
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    const user = session.user;
+    const prenom = user.user_metadata?.prenom || user.email.split('@')[0];
+    const nom = user.user_metadata?.nom || '';
+
+    avatarInitial.textContent = prenom.charAt(0).toUpperCase();
+    bannerName.textContent = (prenom + ' ' + nom).trim();
+    bannerEmail.textContent = user.email;
+
+    prenomInput.value = prenom;
+    nomInput.value = nom;
+    emailInput.value = user.email;
+  }
+
+  // ---- Mise à jour du profil ----
+  const formProfile = document.getElementById('form-profile');
+  const profileMsg = document.getElementById('profile-msg');
+  const btnSaveProfile = document.getElementById('btn-save-profile');
+
+  formProfile.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg(profileMsg);
+    btnSaveProfile.disabled = true;
+    btnSaveProfile.textContent = 'Enregistrement...';
+
+    const { error } = await supabaseClient.auth.updateUser({
+      data: { prenom: prenomInput.value.trim(), nom: nomInput.value.trim() }
+    });
+
+    btnSaveProfile.disabled = false;
+    btnSaveProfile.textContent = 'Enregistrer';
+
+    if (error) {
+      showMsg(profileMsg, "Erreur : " + error.message, 'error');
+      return;
+    }
+
+    bannerName.textContent = (prenomInput.value.trim() + ' ' + nomInput.value.trim()).trim();
+    avatarInitial.textContent = prenomInput.value.trim().charAt(0).toUpperCase();
+    showMsg(profileMsg, "Profil mis à jour !", 'success');
+  });
+
+  // ---- Mise à jour du mot de passe ----
+  const formPassword = document.getElementById('form-password');
+  const passwordMsg = document.getElementById('password-msg');
+  const btnSavePassword = document.getElementById('btn-save-password');
+
+  formPassword.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg(passwordMsg);
+
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    if (newPassword !== confirmPassword) {
+      showMsg(passwordMsg, "Les mots de passe ne correspondent pas.", 'error');
+      return;
+    }
+
+    btnSavePassword.disabled = true;
+    btnSavePassword.textContent = 'Mise à jour...';
+
+    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+
+    btnSavePassword.disabled = false;
+    btnSavePassword.textContent = 'Mettre à jour';
+
+    if (error) {
+      showMsg(passwordMsg, "Erreur : " + error.message, 'error');
+      return;
+    }
+
+    formPassword.reset();
+    showMsg(passwordMsg, "Mot de passe mis à jour !", 'success');
+  });
+
+  // ---- Déconnexion ----
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'index.html';
+  });
+
+  init();
+</script>
+
+</body>
+</html>

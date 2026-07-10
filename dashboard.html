@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon carnet de cours — Tableau de bord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --slate: #22282A;
+    --slate-light: #2E3638;
+    --paper: #FBF7EE;
+    --paper-dim: #F0EBDD;
+    --ink: #2A2620;
+    --ink-soft: #6B6558;
+    --amber: #D9A441;
+    --teal: #4F8F82;
+    --denim: #5C6FA3;
+    --brick: #B5583C;
+    --chalk: #F1EEE4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--slate);
+    color: var(--chalk);
+    min-height: 100vh;
+  }
+
+  /* ============ TOP BAR ============ */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 56px;
+    border-bottom: 1px solid rgba(241,238,228,0.08);
+    background:
+      radial-gradient(circle at 10% 0%, rgba(217,164,65,0.06), transparent 40%),
+      var(--slate);
+    position: relative;
+    z-index: 50;
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .brand .mark {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--chalk);
+  }
+
+  .brand .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    font-weight: 600;
+  }
+
+  /* ---- Profile menu ---- */
+  .who {
+    position: relative;
+  }
+
+  .who-trigger {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 6px 10px 6px 6px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .who-trigger:hover,
+  .who-trigger[aria-expanded="true"] {
+    background: rgba(241,238,228,0.06);
+    border-color: rgba(241,238,228,0.14);
+  }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--brick));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--slate);
+    flex-shrink: 0;
+  }
+
+  .who-trigger .greeting {
+    font-size: 14px;
+    color: rgba(241,238,228,0.85);
+    text-align: left;
+  }
+
+  .who-trigger .greeting strong {
+    display: block;
+    color: var(--chalk);
+    font-weight: 600;
+    font-size: 14.5px;
+  }
+
+  .who-trigger .greeting span {
+    font-size: 11px;
+    color: rgba(241,238,228,0.45);
+  }
+
+  .chev {
+    color: rgba(241,238,228,0.45);
+    font-size: 10px;
+    transition: transform 0.2s ease;
+    margin-left: 2px;
+  }
+
+  .who-trigger[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+  .who-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 220px;
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 12px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    padding: 8px;
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  .who-menu.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .who-menu .menu-head {
+    padding: 10px 12px 12px;
+    border-bottom: 1px solid rgba(42,38,32,0.1);
+    margin-bottom: 6px;
+  }
+
+  .who-menu .menu-head .name {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .who-menu .menu-head .email {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    word-break: break-all;
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .menu-item:hover { background: var(--paper-dim); }
+  .menu-item .ico { font-size: 15px; width: 18px; text-align: center; }
+  .menu-item.danger { color: var(--brick); }
+
+  /* ============ MAIN ============ */
+  main {
+    padding: 48px 56px 64px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .page-head h1 {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 42px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .page-head p {
+    color: rgba(241,238,228,0.55);
+    font-size: 15px;
+    margin-bottom: 36px;
+  }
+
+  /* ---- Stats row ---- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 44px;
+  }
+
+  .stat-card {
+    background: var(--slate-light);
+    border: 1px solid rgba(241,238,228,0.08);
+    border-radius: 12px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent, var(--amber));
+  }
+
+  .stat-card .stat-icon {
+    font-size: 18px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .stat-card .stat-value {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 34px;
+    line-height: 1;
+    color: var(--chalk);
+  }
+
+  .stat-card .stat-label {
+    font-size: 12px;
+    color: rgba(241,238,228,0.5);
+    margin-top: 6px;
+  }
+
+  .stat-card.c-amber { --accent: var(--amber); }
+  .stat-card.c-teal { --accent: var(--teal); }
+  .stat-card.c-denim { --accent: var(--denim); }
+  .stat-card.c-brick { --accent: var(--brick); }
+
+  .section-title {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(241,238,228,0.4);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  /* ---- Loading state ---- */
+  .state-box {
+    padding: 40px;
+    text-align: center;
+    color: rgba(241,238,228,0.5);
+    font-size: 14px;
+    border: 1px dashed rgba(241,238,228,0.15);
+    border-radius: 10px;
+  }
+
+  /* ---- Welcoming empty state ---- */
+  .empty-state {
+    display: none;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(217,164,65,0.08), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(79,143,130,0.08), transparent 45%),
+      var(--slate-light);
+    border: 1px solid rgba(241,238,228,0.08);
+    border-radius: 14px;
+    padding: 48px 40px;
+    text-align: center;
+  }
+
+  .empty-state .doodle {
+    font-size: 42px;
+    margin-bottom: 18px;
+    display: inline-block;
+  }
+
+  .empty-state h2 {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 30px;
+    margin-bottom: 10px;
+    color: var(--chalk);
+  }
+
+  .empty-state p {
+    font-size: 14px;
+    color: rgba(241,238,228,0.55);
+    max-width: 420px;
+    margin: 0 auto 22px;
+    line-height: 1.5;
+  }
+
+  .empty-state .ghost-stack {
+    max-width: 360px;
+    margin: 0 auto 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .empty-state .ghost-tab {
+    height: 40px;
+    border-radius: 8px;
+    background: rgba(241,238,228,0.05);
+    border: 1px dashed rgba(241,238,228,0.18);
+  }
+
+  .empty-state .ghost-tab:nth-child(1) { width: 100%; transform: rotate(-0.5deg); }
+  .empty-state .ghost-tab:nth-child(2) { width: 82%; margin-left: 24px; transform: rotate(0.4deg); }
+  .empty-state .ghost-tab:nth-child(3) { width: 64%; margin-left: 48px; transform: rotate(-0.3deg); }
+
+  .empty-state .hint-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: rgba(241,238,228,0.6);
+    background: rgba(241,238,228,0.06);
+    border: 1px solid rgba(241,238,228,0.12);
+    padding: 8px 16px;
+    border-radius: 999px;
+  }
+
+  /* ---- Course list ---- */
+  .courses {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .course-card {
+    position: relative;
+    background: var(--paper);
+    border-radius: 12px;
+    padding: 22px 26px;
+    color: var(--ink);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.28);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .course-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 12px 12px 0 rgba(217,164,65,0.35);
+  }
+
+  .course-card .marker {
+    width: 6px;
+    align-self: stretch;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background: var(--amber);
+  }
+
+  .course-card:nth-child(3n+2) .marker { background: var(--teal); }
+  .course-card:nth-child(3n+3) .marker { background: var(--denim); }
+
+  .course-card .info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .course-card .kind {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .course-card .name {
+    font-size: 19px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .course-card .desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+
+  .course-card .badge-done {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--teal);
+    background: rgba(79,143,130,0.12);
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-top: 6px;
+  }
+
+  .course-card .progress-wrap {
+    width: 160px;
+    flex-shrink: 0;
+  }
+
+  .course-card .progress-label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    text-align: right;
+  }
+
+  .progress-track {
+    height: 8px;
+    background: var(--paper-dim);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  @media (max-width: 900px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 720px) {
+    .topbar { padding: 18px 24px; flex-wrap: wrap; gap: 12px; }
+    main { padding: 32px 24px 48px; }
+    .course-card { flex-wrap: wrap; }
+    .course-card .progress-wrap { width: 100%; }
+    .course-card .progress-label { text-align: left; }
+    .who-trigger .greeting { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="mark">Mon carnet</span>
+    <span class="eyebrow">Tableau de bord</span>
+  </div>
+
+  <div class="who">
+    <button class="who-trigger" id="who-trigger" aria-haspopup="true" aria-expanded="false">
+      <span class="avatar" id="avatar-initial">…</span>
+      <span class="greeting">
+        <strong id="greeting-name">…</strong>
+        <span>Voir mon profil</span>
+      </span>
+      <span class="chev">▾</span>
+    </button>
+
+    <div class="who-menu" id="who-menu" role="menu">
+      <div class="menu-head">
+        <div class="name" id="menu-name">…</div>
+        <div class="email" id="menu-email">…</div>
+      </div>
+      <a class="menu-item" href="settings.html" role="menuitem">
+        <span class="ico">⚙️</span> Paramètres
+      </a>
+      <button class="menu-item danger" id="btn-logout" role="menuitem">
+        <span class="ico">↪</span> Se déconnecter
+      </button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="page-head">
+    <h1 id="page-title">Tes cours</h1>
+    <p id="page-sub">Reprends où tu en étais, ou explore un nouveau module.</p>
+  </div>
+
+  <div id="stats-block" style="display:none;">
+    <div class="section-title">Ta progression</div>
+    <div class="stats">
+      <div class="stat-card c-amber">
+        <span class="stat-icon">📚</span>
+        <div class="stat-value" id="stat-courses">0</div>
+        <div class="stat-label">Cours suivis</div>
+      </div>
+      <div class="stat-card c-teal">
+        <span class="stat-icon">✅</span>
+        <div class="stat-value" id="stat-done">0</div>
+        <div class="stat-label">Activités terminées</div>
+      </div>
+      <div class="stat-card c-denim">
+        <span class="stat-icon">🎯</span>
+        <div class="stat-value" id="stat-pct">0%</div>
+        <div class="stat-label">Progression globale</div>
+      </div>
+      <div class="stat-card c-brick">
+        <span class="stat-icon">🏆</span>
+        <div class="stat-value" id="stat-finished-courses">0</div>
+        <div class="stat-label">Cours terminés</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="content">
+    <div class="state-box" id="state-box">Chargement de tes cours...</div>
+
+    <div class="empty-state" id="empty-state">
+      <span class="doodle">✨</span>
+      <h2>Ton carnet n'attend que toi</h2>
+      <p>Aucun cours n'est disponible pour l'instant, mais ce sera bientôt le cas. Reviens faire un tour un peu plus tard !</p>
+      <div class="ghost-stack" aria-hidden="true">
+        <div class="ghost-tab"></div>
+        <div class="ghost-tab"></div>
+        <div class="ghost-tab"></div>
+      </div>
+      <span class="hint-pill">💡 Les nouveaux cours apparaîtront directement ici</span>
+    </div>
+
+    <div class="courses" id="courses-list" style="display:none;"></div>
+  </div>
+</main>
+
+<script>
+  // ============ CONFIG SUPABASE ============
+  const SUPABASE_URL = 'https://zahbiiddqtjcbggdtevt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_HzPYCgN_qyi29hzPi8Q_wA_r0oiKj83';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const stateBox = document.getElementById('state-box');
+  const emptyState = document.getElementById('empty-state');
+  const coursesList = document.getElementById('courses-list');
+  const statsBlock = document.getElementById('stats-block');
+  const greetingName = document.getElementById('greeting-name');
+  const avatarInitial = document.getElementById('avatar-initial');
+  const menuName = document.getElementById('menu-name');
+  const menuEmail = document.getElementById('menu-email');
+  const btnLogout = document.getElementById('btn-logout');
+  const whoTrigger = document.getElementById('who-trigger');
+  const whoMenu = document.getElementById('who-menu');
+
+  function showOnly(el) {
+    [stateBox, emptyState, coursesList].forEach(node => {
+      node.style.display = 'none';
+    });
+    if (el === coursesList) {
+      coursesList.style.display = 'flex';
+    } else if (el) {
+      el.style.display = 'block';
+    }
+  }
+
+  // ---- Profile dropdown ----
+  function closeMenu() {
+    whoMenu.classList.remove('open');
+    whoTrigger.setAttribute('aria-expanded', 'false');
+  }
+
+  whoTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = whoMenu.classList.toggle('open');
+    whoTrigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!whoMenu.contains(e.target) && !whoTrigger.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+
+  async function init() {
+    // 1. Vérifier la session — pas connecté -> retour à l'accueil
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    const user = session.user;
+    const prenom = user.user_metadata?.prenom || user.email.split('@')[0];
+    const nom = user.user_metadata?.nom || '';
+    const fullName = (prenom + ' ' + nom).trim();
+
+    greetingName.textContent = prenom;
+    avatarInitial.textContent = prenom.charAt(0).toUpperCase();
+    menuName.textContent = fullName || prenom;
+    menuEmail.textContent = user.email;
+
+    await loadCourses(user.id);
+  }
+
+  async function loadCourses(userId) {
+    // 2. Récupérer tous les cours
+    const { data: cours, error: coursError } = await supabaseClient
+      .from('cours')
+      .select('id, titre, description')
+      .order('titre');
+
+    if (coursError) {
+      stateBox.textContent = "Erreur lors du chargement des cours : " + coursError.message;
+      showOnly(stateBox);
+      return;
+    }
+
+    if (!cours || cours.length === 0) {
+      showOnly(emptyState);
+      return;
+    }
+
+    // 3. Récupérer toutes les activités, groupées par cours (via modules -> sections -> activites)
+    const { data: modules } = await supabaseClient
+      .from('modules')
+      .select('id, cours_id');
+
+    const { data: sections } = await supabaseClient
+      .from('sections')
+      .select('id, module_id');
+
+    const { data: activites } = await supabaseClient
+      .from('activites')
+      .select('id, section_id');
+
+    // 4. Récupérer la progression de l'utilisateur
+    const { data: progression } = await supabaseClient
+      .from('progression')
+      .select('activite_id, termine')
+      .eq('user_id', userId);
+
+    const termineIds = new Set(
+      (progression || []).filter(p => p.termine).map(p => p.activite_id)
+    );
+
+    // 5. Calculer, pour chaque cours, le nombre total d'activités et le nombre terminées
+    function activitesForCours(coursId) {
+      const moduleIds = (modules || []).filter(m => m.cours_id === coursId).map(m => m.id);
+      const sectionIds = (sections || []).filter(s => moduleIds.includes(s.module_id)).map(s => s.id);
+      return (activites || []).filter(a => sectionIds.includes(a.section_id));
+    }
+
+    // 6. Construire les cartes + calculer les stats globales
+    let totalActivitesGlobal = 0;
+    let totalFaitesGlobal = 0;
+    let coursTerminesCount = 0;
+
+    coursesList.innerHTML = '';
+    cours.forEach(c => {
+      const acts = activitesForCours(c.id);
+      const total = acts.length;
+      const faites = acts.filter(a => termineIds.has(a.id)).length;
+      const pct = total > 0 ? Math.round((faites / total) * 100) : 0;
+
+      totalActivitesGlobal += total;
+      totalFaitesGlobal += faites;
+      if (total > 0 && faites === total) coursTerminesCount++;
+
+      const card = document.createElement('div');
+      card.className = 'course-card';
+      card.innerHTML = `
+        <div class="marker"></div>
+        <div class="info">
+          <div class="kind">Cours</div>
+          <div class="name">${escapeHtml(c.titre)}</div>
+          <div class="desc">${escapeHtml(c.description || '')}</div>
+          ${total > 0 && faites === total ? '<span class="badge-done">🏆 Terminé</span>' : ''}
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label">${total > 0 ? faites + ' / ' + total + ' activités' : 'Pas encore d\'activité'}</div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:${pct}%"></div>
+          </div>
+        </div>
+      `;
+      card.addEventListener('click', () => {
+        // TODO : rediriger vers la page du cours une fois créée
+        window.location.href = 'cours.html?id=' + c.id;
+      });
+      coursesList.appendChild(card);
+    });
+
+    // 7. Afficher les stats globales
+    const globalPct = totalActivitesGlobal > 0
+      ? Math.round((totalFaitesGlobal / totalActivitesGlobal) * 100)
+      : 0;
+
+    document.getElementById('stat-courses').textContent = cours.length;
+    document.getElementById('stat-done').textContent = totalFaitesGlobal;
+    document.getElementById('stat-pct').textContent = globalPct + '%';
+    document.getElementById('stat-finished-courses').textContent = coursTerminesCount;
+    statsBlock.style.display = 'block';
+
+    showOnly(coursesList);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  btnLogout.addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'index.html';
+  });
+
+  init();
+</script>
+
+</body>
+</html>

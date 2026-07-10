@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon carnet de cours — Administration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --slate: #22282A;
+    --slate-light: #2E3638;
+    --paper: #FBF7EE;
+    --paper-dim: #F0EBDD;
+    --ink: #2A2620;
+    --ink-soft: #6B6558;
+    --amber: #D9A441;
+    --teal: #4F8F82;
+    --denim: #5C6FA3;
+    --brick: #B5583C;
+    --chalk: #F1EEE4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--slate);
+    color: var(--chalk);
+    min-height: 100vh;
+  }
+
+  /* ============ TOP BAR ============ */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 56px;
+    border-bottom: 1px solid rgba(241,238,228,0.08);
+    background:
+      radial-gradient(circle at 10% 0%, rgba(92,111,163,0.08), transparent 40%),
+      var(--slate);
+  }
+
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+
+  .brand .mark {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--chalk);
+  }
+
+  .brand .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--paper);
+    background: var(--denim);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .link-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: rgba(241,238,228,0.7);
+    font-size: 13.5px;
+    font-weight: 600;
+    border: 1px solid rgba(241,238,228,0.16);
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all 0.2s ease;
+  }
+
+  .link-btn:hover { border-color: var(--denim); color: var(--denim); }
+  .link-btn.danger:hover { border-color: var(--brick); color: var(--brick); }
+
+  /* ============ MAIN ============ */
+  main {
+    padding: 48px 56px 80px;
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+
+  .page-head h1 {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 42px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .page-head p {
+    color: rgba(241,238,228,0.55);
+    font-size: 15px;
+    margin-bottom: 36px;
+  }
+
+  .section-title {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(241,238,228,0.4);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  /* ---- Stats ---- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 44px;
+  }
+
+  .stat-card {
+    background: var(--slate-light);
+    border: 1px solid rgba(241,238,228,0.08);
+    border-radius: 12px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent, var(--denim));
+  }
+
+  .stat-card .stat-icon { font-size: 18px; margin-bottom: 10px; display: block; }
+
+  .stat-card .stat-value {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 34px;
+    line-height: 1;
+    color: var(--chalk);
+  }
+
+  .stat-card .stat-label {
+    font-size: 12px;
+    color: rgba(241,238,228,0.5);
+    margin-top: 6px;
+  }
+
+  .stat-card.c-amber { --accent: var(--amber); }
+  .stat-card.c-teal { --accent: var(--teal); }
+  .stat-card.c-denim { --accent: var(--denim); }
+  .stat-card.c-brick { --accent: var(--brick); }
+
+  /* ---- Panel (courses management) ---- */
+  .panel {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 14px;
+    box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid rgba(42,38,32,0.08);
+  }
+
+  .panel-head h2 { font-size: 17px; font-weight: 700; }
+  .panel-head p { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+
+  .btn {
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--teal);
+    color: var(--paper);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+  .btn-primary:active { transform: translate(0,0); box-shadow: 1px 1px 0 var(--ink); }
+
+  .btn-primary[disabled] { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: 3px 3px 0 var(--ink); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(42,38,32,0.15);
+    color: var(--ink);
+    padding: 7px 13px;
+    font-size: 12.5px;
+  }
+  .btn-ghost:hover { background: var(--paper-dim); }
+
+  .btn-ghost-danger {
+    background: transparent;
+    border: 1px solid rgba(181,88,60,0.35);
+    color: var(--brick);
+    padding: 7px 13px;
+    font-size: 12.5px;
+  }
+  .btn-ghost-danger:hover { background: rgba(181,88,60,0.08); }
+
+  /* ---- Add-course form (collapsible) ---- */
+  .add-form {
+    display: none;
+    padding: 20px 28px;
+    background: var(--paper-dim);
+    border-bottom: 1px solid rgba(42,38,32,0.08);
+    gap: 14px;
+  }
+
+  .add-form.open { display: flex; flex-direction: column; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  .field label {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .field input, .field textarea {
+    border: none;
+    border-bottom: 2px solid rgba(42,38,32,0.15);
+    background: transparent;
+    padding: 8px 2px 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14.5px;
+    color: var(--ink);
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+  }
+
+  .field input:focus, .field textarea:focus { border-bottom-color: var(--teal); }
+
+  .add-form-actions { display: flex; gap: 10px; margin-top: 4px; }
+
+  /* ---- Table / list of courses ---- */
+  .admin-list { display: flex; flex-direction: column; }
+
+  .admin-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 28px;
+    border-bottom: 1px solid rgba(42,38,32,0.07);
+  }
+
+  .admin-row:last-child { border-bottom: none; }
+
+  .admin-row .marker {
+    width: 5px;
+    align-self: stretch;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background: var(--amber);
+    min-height: 40px;
+  }
+
+  .admin-row:nth-child(3n+2) .marker { background: var(--teal); }
+  .admin-row:nth-child(3n+3) .marker { background: var(--denim); }
+
+  .admin-row .info { flex: 1; min-width: 0; }
+  .admin-row .name { font-size: 15.5px; font-weight: 600; margin-bottom: 3px; }
+  .admin-row .desc { font-size: 13px; color: var(--ink-soft); line-height: 1.4; }
+  .admin-row .meta { font-size: 11.5px; color: var(--ink-soft); margin-top: 6px; }
+
+  .admin-row .row-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* ---- edit inline form ---- */
+  .edit-form { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .edit-form .edit-actions { display: flex; gap: 8px; margin-top: 2px; }
+
+  .state-box {
+    padding: 34px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  .msg {
+    font-size: 13px;
+    padding: 10px 12px;
+    margin: 0 28px 18px;
+    border-radius: 6px;
+    display: none;
+    line-height: 1.4;
+  }
+
+  .msg.show { display: block; }
+  .msg.error { background: rgba(181,88,60,0.12); color: var(--brick); }
+  .msg.success { background: rgba(79,143,130,0.12); color: var(--teal); }
+
+  .note-box {
+    background: rgba(92,111,163,0.08);
+    border: 1px solid rgba(92,111,163,0.25);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 12.5px;
+    color: rgba(241,238,228,0.65);
+    line-height: 1.5;
+    margin-bottom: 32px;
+  }
+
+  .note-box strong { color: var(--chalk); }
+
+  @media (max-width: 900px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 720px) {
+    .topbar { padding: 18px 24px; flex-wrap: wrap; gap: 12px; }
+    main { padding: 32px 24px 56px; }
+    .admin-row { flex-wrap: wrap; }
+    .admin-row .row-actions { width: 100%; }
+    .panel-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="mark">Mon carnet</span>
+    <span class="eyebrow">🔒 Admin</span>
+  </div>
+  <div class="topbar-right">
+    <a class="link-btn" href="dashboard.html">Vue élève</a>
+    <button class="link-btn danger" id="btn-logout">Se déconnecter</button>
+  </div>
+</div>
+
+<main>
+  <div class="page-head">
+    <h1>Administration</h1>
+    <p>Gère les cours et surveille l'activité de la plateforme.</p>
+  </div>
+
+  <div class="note-box">
+    <strong>Note :</strong> les données affichées et les actions de création/modification/suppression dépendent des règles d'accès (RLS) configurées sur ta base Supabase. Si une action échoue silencieusement, vérifie que la clé publique a bien les droits d'écriture sur la table <code>cours</code> pour un usage admin.
+  </div>
+
+  <div class="section-title">Vue d'ensemble</div>
+  <div class="stats">
+    <div class="stat-card c-amber">
+      <span class="stat-icon">📚</span>
+      <div class="stat-value" id="stat-cours">–</div>
+      <div class="stat-label">Cours au total</div>
+    </div>
+    <div class="stat-card c-teal">
+      <span class="stat-icon">🧩</span>
+      <div class="stat-value" id="stat-modules">–</div>
+      <div class="stat-label">Modules</div>
+    </div>
+    <div class="stat-card c-denim">
+      <span class="stat-icon">🗂️</span>
+      <div class="stat-value" id="stat-sections">–</div>
+      <div class="stat-label">Sections</div>
+    </div>
+    <div class="stat-card c-brick">
+      <span class="stat-icon">✏️</span>
+      <div class="stat-value" id="stat-activites">–</div>
+      <div class="stat-label">Activités</div>
+    </div>
+  </div>
+
+  <div class="section-title">Gestion des cours</div>
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Tous les cours</h2>
+        <p id="panel-sub">Chargement...</p>
+      </div>
+      <button class="btn btn-primary" id="btn-toggle-add">+ Ajouter un cours</button>
+    </div>
+
+    <form class="add-form" id="add-form">
+      <div class="field">
+        <label for="new-titre">Titre du cours</label>
+        <input type="text" id="new-titre" placeholder="Ex : Mathématiques" required>
+      </div>
+      <div class="field">
+        <label for="new-desc">Description</label>
+        <textarea id="new-desc" rows="2" placeholder="Courte description du cours"></textarea>
+      </div>
+      <div class="add-form-actions">
+        <button type="submit" class="btn btn-primary" id="btn-create">Créer le cours</button>
+        <button type="button" class="btn btn-ghost" id="btn-cancel-add">Annuler</button>
+      </div>
+      <div class="msg" id="create-msg" style="margin:0;"></div>
+    </form>
+
+    <div class="msg" id="list-msg"></div>
+    <div class="state-box" id="list-state">Chargement des cours...</div>
+    <div class="admin-list" id="admin-list" style="display:none;"></div>
+  </div>
+</main>
+
+<script>
+  // ============ CONFIG SUPABASE ============
+  const SUPABASE_URL = 'https://zahbiiddqtjcbggdtevt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_HzPYCgN_qyi29hzPi8Q_wA_r0oiKj83';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ---- Garde de session ----
+  // Le rôle admin est lu dans app_metadata (voir admin-login.html) : ce
+  // champ ne peut être modifié que depuis Supabase (dashboard / SQL editor),
+  // jamais depuis le navigateur. La vraie protection reste cependant les
+  // policies RLS côté base de données (voir instructions fournies) : ce
+  // garde-fou ne fait qu'éviter d'afficher la page à qui n'a pas le rôle.
+  function isAdmin(user) {
+    return user?.app_metadata?.role === 'admin';
+  }
+
+  async function requireAdmin() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session || !isAdmin(session.user)) {
+      window.location.href = 'admin-login.html';
+      return false;
+    }
+    return true;
+  }
+
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'admin-login.html';
+  });
+
+  const listState = document.getElementById('list-state');
+  const adminList = document.getElementById('admin-list');
+  const listMsg = document.getElementById('list-msg');
+  const panelSub = document.getElementById('panel-sub');
+
+  function showMsg(el, text, type) {
+    el.textContent = text;
+    el.className = 'msg show ' + type;
+  }
+  function hideMsg(el) { el.className = 'msg'; }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ---- Toggle add-course form ----
+  const addForm = document.getElementById('add-form');
+  const btnToggleAdd = document.getElementById('btn-toggle-add');
+  const btnCancelAdd = document.getElementById('btn-cancel-add');
+
+  btnToggleAdd.addEventListener('click', () => {
+    addForm.classList.toggle('open');
+    if (addForm.classList.contains('open')) document.getElementById('new-titre').focus();
+  });
+  btnCancelAdd.addEventListener('click', () => {
+    addForm.classList.remove('open');
+    addForm.reset();
+    hideMsg(document.getElementById('create-msg'));
+  });
+
+  // ---- Charger stats + liste des cours ----
+  async function loadAll() {
+    hideMsg(listMsg);
+
+    const [{ data: cours, error: coursError }, { data: modules }, { data: sections }, { data: activites }] = await Promise.all([
+      supabaseClient.from('cours').select('id, titre, description').order('titre'),
+      supabaseClient.from('modules').select('id, cours_id'),
+      supabaseClient.from('sections').select('id, module_id'),
+      supabaseClient.from('activites').select('id, section_id')
+    ]);
+
+    document.getElementById('stat-cours').textContent = cours ? cours.length : '–';
+    document.getElementById('stat-modules').textContent = modules ? modules.length : '–';
+    document.getElementById('stat-sections').textContent = sections ? sections.length : '–';
+    document.getElementById('stat-activites').textContent = activites ? activites.length : '–';
+
+    if (coursError) {
+      listState.textContent = "Erreur lors du chargement : " + coursError.message;
+      listState.style.display = 'block';
+      adminList.style.display = 'none';
+      panelSub.textContent = 'Erreur';
+      return;
+    }
+
+    if (!cours || cours.length === 0) {
+      listState.textContent = "Aucun cours pour l'instant. Ajoute le premier !";
+      listState.style.display = 'block';
+      adminList.style.display = 'none';
+      panelSub.textContent = '0 cours';
+      return;
+    }
+
+    function moduleCountFor(coursId) {
+      return (modules || []).filter(m => m.cours_id === coursId).length;
+    }
+    function activiteCountFor(coursId) {
+      const moduleIds = (modules || []).filter(m => m.cours_id === coursId).map(m => m.id);
+      const sectionIds = (sections || []).filter(s => moduleIds.includes(s.module_id)).map(s => s.id);
+      return (activites || []).filter(a => sectionIds.includes(a.section_id)).length;
+    }
+
+    panelSub.textContent = cours.length + (cours.length > 1 ? ' cours au total' : ' cours au total');
+    adminList.innerHTML = '';
+
+    cours.forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'admin-row';
+      row.innerHTML = `
+        <div class="marker"></div>
+        <div class="info">
+          <div class="name">${escapeHtml(c.titre)}</div>
+          <div class="desc">${escapeHtml(c.description || 'Pas de description.')}</div>
+          <div class="meta">${moduleCountFor(c.id)} module(s) · ${activiteCountFor(c.id)} activité(s)</div>
+        </div>
+        <div class="row-actions">
+          <a class="btn btn-ghost" href="admin-content.html?cours_id=${c.id}">Gérer →</a>
+          <button class="btn btn-ghost" data-action="edit" data-id="${c.id}">Modifier</button>
+          <button class="btn btn-ghost-danger" data-action="delete" data-id="${c.id}">Supprimer</button>
+        </div>
+      `;
+      adminList.appendChild(row);
+
+      row.querySelector('[data-action="edit"]').addEventListener('click', () => enterEditMode(row, c));
+      row.querySelector('[data-action="delete"]').addEventListener('click', () => deleteCourse(c));
+    });
+
+    listState.style.display = 'none';
+    adminList.style.display = 'flex';
+    adminList.style.flexDirection = 'column';
+  }
+
+  function enterEditMode(row, c) {
+    row.innerHTML = `
+      <div class="marker"></div>
+      <form class="edit-form">
+        <div class="field">
+          <label>Titre</label>
+          <input type="text" class="edit-titre" value="${escapeHtml(c.titre)}" required>
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <textarea class="edit-desc" rows="2">${escapeHtml(c.description || '')}</textarea>
+        </div>
+        <div class="edit-actions">
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+          <button type="button" class="btn btn-ghost edit-cancel">Annuler</button>
+        </div>
+        <div class="msg edit-msg" style="margin:0;"></div>
+      </form>
+    `;
+
+    const form = row.querySelector('.edit-form');
+    const editMsg = row.querySelector('.edit-msg');
+
+    row.querySelector('.edit-cancel').addEventListener('click', () => loadAll());
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const titre = row.querySelector('.edit-titre').value.trim();
+      const description = row.querySelector('.edit-desc').value.trim();
+
+      if (!titre) return;
+
+      const { error } = await supabaseClient
+        .from('cours')
+        .update({ titre, description })
+        .eq('id', c.id);
+
+      if (error) {
+        showMsg(editMsg, "Erreur : " + error.message, 'error');
+        return;
+      }
+      loadAll();
+    });
+  }
+
+  async function deleteCourse(c) {
+    const confirmed = window.confirm('Supprimer le cours "' + c.titre + '" ? Cette action est irréversible.');
+    if (!confirmed) return;
+
+    const { error } = await supabaseClient.from('cours').delete().eq('id', c.id);
+
+    if (error) {
+      showMsg(listMsg, "Erreur lors de la suppression : " + error.message, 'error');
+      return;
+    }
+    showMsg(listMsg, 'Cours supprimé.', 'success');
+    loadAll();
+  }
+
+  // ---- Créer un nouveau cours ----
+  const createMsg = document.getElementById('create-msg');
+  const btnCreate = document.getElementById('btn-create');
+
+  addForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg(createMsg);
+
+    const titre = document.getElementById('new-titre').value.trim();
+    const description = document.getElementById('new-desc').value.trim();
+
+    if (!titre) return;
+
+    btnCreate.disabled = true;
+    btnCreate.textContent = 'Création...';
+
+    const { error } = await supabaseClient.from('cours').insert({ titre, description });
+
+    btnCreate.disabled = false;
+    btnCreate.textContent = 'Créer le cours';
+
+    if (error) {
+      showMsg(createMsg, "Erreur : " + error.message, 'error');
+      return;
+    }
+
+    addForm.reset();
+    addForm.classList.remove('open');
+    loadAll();
+  });
+
+  (async () => {
+    const ok = await requireAdmin();
+    if (ok) loadAll();
+  })();
+</script>
+
+</body>
+</html>

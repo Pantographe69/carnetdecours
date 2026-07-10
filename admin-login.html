@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon carnet de cours — Connexion admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --slate: #22282A;
+    --slate-light: #2E3638;
+    --paper: #FBF7EE;
+    --paper-dim: #F0EBDD;
+    --ink: #2A2620;
+    --ink-soft: #6B6558;
+    --amber: #D9A441;
+    --teal: #4F8F82;
+    --denim: #5C6FA3;
+    --brick: #B5583C;
+    --chalk: #F1EEE4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--slate);
+    color: var(--chalk);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 12%, rgba(92,111,163,0.10), transparent 40%),
+      radial-gradient(circle at 85% 85%, rgba(217,164,65,0.06), transparent 40%);
+    pointer-events: none;
+  }
+
+  .card {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    background: var(--paper);
+    border-radius: 14px;
+    padding: 40px 38px 34px;
+    color: var(--ink);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--paper);
+    background: var(--denim);
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .sub {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin-bottom: 26px;
+    line-height: 1.45;
+  }
+
+  form { display: flex; flex-direction: column; gap: 20px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  .field label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .field input {
+    border: none;
+    border-bottom: 2px solid rgba(42,38,32,0.15);
+    background: transparent;
+    padding: 8px 2px 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .field input:focus { border-bottom-color: var(--denim); }
+  .field input::placeholder { color: rgba(42,38,32,0.3); }
+
+  .submit {
+    margin-top: 2px;
+    border: none;
+    background: var(--denim);
+    color: var(--paper);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 13px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .submit:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+  .submit:active { transform: translate(0, 0); box-shadow: 1px 1px 0 var(--ink); }
+  .submit[disabled] { opacity: 0.6; cursor: not-allowed; box-shadow: 3px 3px 0 var(--ink); transform: none; }
+
+  .msg {
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    display: none;
+    line-height: 1.4;
+  }
+
+  .msg.show { display: block; }
+  .msg.error { background: rgba(181,88,60,0.12); color: var(--brick); }
+  .msg.success { background: rgba(79,143,130,0.12); color: var(--teal); }
+
+  .back-note {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 22px;
+  }
+
+  .back-note a { color: var(--ink-soft); text-decoration: none; font-weight: 600; }
+  .back-note a:hover { color: var(--denim); }
+
+  button:focus-visible, input:focus-visible, a:focus-visible {
+    outline: 2px solid var(--denim);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <span class="badge">🔒 Admin</span>
+  <h1>Connexion administrateur</h1>
+  <p class="sub">Accès réservé. Connecte-toi avec ton compte administrateur.</p>
+
+  <form id="form-admin-login">
+    <div class="field">
+      <label for="admin-email">Email</label>
+      <input type="email" id="admin-email" placeholder="admin@exemple.com" required autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="admin-password">Mot de passe</label>
+      <input type="password" id="admin-password" placeholder="••••••••" required autocomplete="current-password">
+    </div>
+    <div class="msg" id="login-msg"></div>
+    <button type="submit" class="submit" id="login-submit">Se connecter</button>
+  </form>
+
+  <p class="back-note"><a href="index.html">← Retour à l'espace élève</a></p>
+</div>
+
+<script>
+  // ============ CONFIG SUPABASE ============
+  const SUPABASE_URL = 'https://zahbiiddqtjcbggdtevt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_HzPYCgN_qyi29hzPi8Q_wA_r0oiKj83';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const form = document.getElementById('form-admin-login');
+  const msg = document.getElementById('login-msg');
+  const submitBtn = document.getElementById('login-submit');
+
+  function showMsg(text, type) {
+    msg.textContent = text;
+    msg.className = 'msg show ' + type;
+  }
+  function hideMsg() { msg.className = 'msg'; }
+
+  // Vérifie que l'utilisateur connecté a bien le rôle admin.
+  // Le rôle est lu dans app_metadata, un champ que Supabase ne laisse
+  // JAMAIS modifier depuis le navigateur (contrairement à user_metadata) :
+  // il ne peut être défini que depuis le tableau de bord Supabase ou le
+  // SQL Editor, donc un utilisateur normal ne peut jamais se l'auto-attribuer.
+  function isAdmin(user) {
+    return user?.app_metadata?.role === 'admin';
+  }
+
+  // Si une session admin valide existe déjà, on saute direct au dashboard.
+  (async () => {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && isAdmin(session.user)) {
+      window.location.href = 'admin-dashboard.html';
+    }
+  })();
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Connexion...';
+
+    const email = document.getElementById('admin-email').value;
+    const password = document.getElementById('admin-password').value;
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Se connecter';
+      showMsg("Email ou mot de passe incorrect.", 'error');
+      return;
+    }
+
+    if (!isAdmin(data.user)) {
+      // Compte valide mais pas admin : on refuse et on déconnecte
+      // immédiatement pour ne pas laisser traîner une session ici.
+      await supabaseClient.auth.signOut();
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Se connecter';
+      showMsg("Ce compte n'a pas les droits administrateur.", 'error');
+      return;
+    }
+
+    showMsg("Connecté ! Redirection...", 'success');
+    window.location.href = 'admin-dashboard.html';
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon carnet de cours — Contenu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --slate: #22282A; --slate-light: #2E3638; --paper: #FBF7EE; --paper-dim: #F0EBDD;
+    --ink: #2A2620; --ink-soft: #6B6558; --amber: #D9A441; --teal: #4F8F82;
+    --denim: #5C6FA3; --brick: #B5583C; --chalk: #F1EEE4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--slate); color: var(--chalk); min-height: 100vh; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 22px 56px;
+    border-bottom: 1px solid rgba(241,238,228,0.08);
+    background: radial-gradient(circle at 10% 0%, rgba(92,111,163,0.08), transparent 40%), var(--slate); }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand .mark { font-family: 'Caveat', cursive; font-weight: 700; font-size: 28px; color: var(--chalk); }
+  .brand .eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; font-weight: 700; color: var(--paper); background: var(--denim); padding: 4px 10px; border-radius: 999px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .link-btn { display: flex; align-items: center; gap: 8px; text-decoration: none; color: rgba(241,238,228,0.7);
+    font-size: 13.5px; font-weight: 600; border: 1px solid rgba(241,238,228,0.16); padding: 8px 16px; border-radius: 999px;
+    background: transparent; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.2s ease; }
+  .link-btn:hover { border-color: var(--denim); color: var(--denim); }
+  .link-btn.danger:hover { border-color: var(--brick); color: var(--brick); }
+
+  main { padding: 48px 56px 80px; max-width: 1000px; margin: 0 auto; }
+
+  .breadcrumb { font-size: 13px; color: rgba(241,238,228,0.5); margin-bottom: 10px; }
+  .breadcrumb a { color: rgba(241,238,228,0.65); text-decoration: none; font-weight: 600; }
+  .breadcrumb a:hover { color: var(--teal); }
+
+  .page-head h1 { font-family: 'Caveat', cursive; font-weight: 700; font-size: 42px; line-height: 1.1; margin-bottom: 6px; }
+  .page-head p { color: rgba(241,238,228,0.55); font-size: 15px; margin-bottom: 36px; }
+
+  .panel { background: var(--paper); color: var(--ink); border-radius: 14px; box-shadow: 0 14px 32px rgba(0,0,0,0.28); overflow: hidden; margin-bottom: 32px; }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 24px 28px 18px; border-bottom: 1px solid rgba(42,38,32,0.08); }
+  .panel-head h2 { font-size: 17px; font-weight: 700; }
+  .panel-head p { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+
+  .btn { border: none; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 10px 18px;
+    border-radius: 8px; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .btn-primary { background: var(--teal); color: var(--paper); box-shadow: 3px 3px 0 var(--ink); }
+  .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+  .btn-primary:active { transform: translate(0,0); box-shadow: 1px 1px 0 var(--ink); }
+  .btn-primary[disabled] { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: 3px 3px 0 var(--ink); }
+  .btn-ghost { background: transparent; border: 1px solid rgba(42,38,32,0.15); color: var(--ink); padding: 7px 13px; font-size: 12.5px; }
+  .btn-ghost:hover { background: var(--paper-dim); }
+  .btn-ghost-danger { background: transparent; border: 1px solid rgba(181,88,60,0.35); color: var(--brick); padding: 7px 13px; font-size: 12.5px; }
+  .btn-ghost-danger:hover { background: rgba(181,88,60,0.08); }
+
+  .add-form { display: none; padding: 20px 28px; background: var(--paper-dim); border-bottom: 1px solid rgba(42,38,32,0.08); gap: 14px; }
+  .add-form.open { display: flex; flex-direction: column; }
+  .row-two { display: flex; gap: 14px; }
+  .row-two .field { flex: 1; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 11.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-soft); }
+  .field input, .field select { border: none; border-bottom: 2px solid rgba(42,38,32,0.15); background: transparent;
+    padding: 8px 2px 10px; font-family: 'Space Grotesk', sans-serif; font-size: 14.5px; color: var(--ink); outline: none; transition: border-color 0.2s ease; }
+  .field input:focus, .field select:focus { border-bottom-color: var(--teal); }
+  .add-form-actions { display: flex; gap: 10px; margin-top: 4px; }
+
+  .admin-list { display: flex; flex-direction: column; }
+  .admin-row { display: flex; align-items: flex-start; gap: 16px; padding: 16px 28px; border-bottom: 1px solid rgba(42,38,32,0.07); }
+  .admin-row:last-child { border-bottom: none; }
+  .admin-row .marker { width: 5px; align-self: stretch; border-radius: 4px; flex-shrink: 0; background: var(--amber); min-height: 36px; }
+  .admin-row:nth-child(3n+2) .marker { background: var(--teal); }
+  .admin-row:nth-child(3n+3) .marker { background: var(--denim); }
+  .admin-row .info { flex: 1; min-width: 0; }
+  .admin-row .name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .admin-row .meta { font-size: 11.5px; color: var(--ink-soft); }
+  .admin-row .type-tag { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; background: rgba(92,111,163,0.12); color: var(--denim); padding: 2px 8px; border-radius: 999px; margin-right: 6px; }
+  .admin-row .row-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .edit-form { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .edit-form .edit-actions { display: flex; gap: 8px; margin-top: 2px; }
+
+  .state-box { padding: 34px; text-align: center; color: var(--ink-soft); font-size: 14px; }
+
+  .msg { font-size: 13px; padding: 10px 12px; margin: 0 28px 18px; border-radius: 6px; display: none; line-height: 1.4; }
+  .msg.show { display: block; }
+  .msg.error { background: rgba(181,88,60,0.12); color: var(--brick); }
+  .msg.success { background: rgba(79,143,130,0.12); color: var(--teal); }
+
+  @media (max-width: 720px) {
+    .topbar { padding: 18px 24px; flex-wrap: wrap; gap: 12px; }
+    main { padding: 32px 24px 56px; }
+    .admin-row { flex-wrap: wrap; }
+    .admin-row .row-actions { width: 100%; }
+    .panel-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .row-two { flex-direction: column; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="mark">Mon carnet</span>
+    <span class="eyebrow">🔒 Admin</span>
+  </div>
+  <div class="topbar-right">
+    <a class="link-btn" href="admin-dashboard.html">← Administration</a>
+    <button class="link-btn danger" id="btn-logout">Se déconnecter</button>
+  </div>
+</div>
+
+<main>
+  <div class="breadcrumb" id="breadcrumb">Chargement...</div>
+  <div class="page-head">
+    <h1 id="page-title">…</h1>
+    <p id="page-sub"></p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h2 id="panel-h2">Éléments</h2>
+        <p id="panel-sub">Chargement...</p>
+      </div>
+      <button class="btn btn-primary" id="btn-toggle-add">+ Ajouter</button>
+    </div>
+
+    <form class="add-form" id="add-form">
+      <div class="row-two">
+        <div class="field" style="flex:2;">
+          <label for="new-titre">Titre</label>
+          <input type="text" id="new-titre" placeholder="Titre" required>
+        </div>
+        <div class="field" id="new-type-field" style="display:none;">
+          <label for="new-type">Type</label>
+          <select id="new-type">
+            <option value="cours">Cours</option>
+            <option value="exercice">Exercice</option>
+            <option value="fiche">Fiche de révision</option>
+            <option value="test">Test</option>
+            <option value="video">Vidéo</option>
+          </select>
+        </div>
+        <div class="field" style="max-width:100px;">
+          <label for="new-ordre">Ordre</label>
+          <input type="number" id="new-ordre" value="0">
+        </div>
+      </div>
+      <div class="add-form-actions">
+        <button type="submit" class="btn btn-primary" id="btn-create">Créer</button>
+        <button type="button" class="btn btn-ghost" id="btn-cancel-add">Annuler</button>
+      </div>
+      <div class="msg" id="create-msg" style="margin:0;"></div>
+    </form>
+
+    <div class="msg" id="list-msg"></div>
+    <div class="state-box" id="list-state">Chargement...</div>
+    <div class="admin-list" id="admin-list" style="display:none;"></div>
+  </div>
+</main>
+
+<script>
+  const SUPABASE_URL = 'https://zahbiiddqtjcbggdtevt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_HzPYCgN_qyi29hzPi8Q_wA_r0oiKj83';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function isAdmin(user) { return user?.app_metadata?.role === 'admin'; }
+  async function requireAdmin() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session || !isAdmin(session.user)) { window.location.href = 'admin-login.html'; return false; }
+    return true;
+  }
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'admin-login.html';
+  });
+
+  function showMsg(el, text, type) { el.textContent = text; el.className = 'msg show ' + type; }
+  function hideMsg(el) { el.className = 'msg'; }
+  function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+
+  // ---- Détermine le niveau à afficher selon les paramètres d'URL ----
+  const params = new URLSearchParams(window.location.search);
+  const coursId = params.get('cours_id');
+  const moduleId = params.get('module_id');
+  const sectionId = params.get('section_id');
+
+  let LEVEL, TABLE, PARENT_FIELD, PARENT_ID, CHILD_HREF_BASE, CHILD_LABEL, HAS_TYPE;
+
+  if (sectionId) {
+    LEVEL = 'activites'; TABLE = 'activites'; PARENT_FIELD = 'section_id'; PARENT_ID = sectionId;
+    HAS_TYPE = true; CHILD_HREF_BASE = null; CHILD_LABEL = null;
+  } else if (moduleId) {
+    LEVEL = 'sections'; TABLE = 'sections'; PARENT_FIELD = 'module_id'; PARENT_ID = moduleId;
+    HAS_TYPE = false; CHILD_HREF_BASE = 'admin-content.html?section_id='; CHILD_LABEL = 'Voir les activités';
+  } else if (coursId) {
+    LEVEL = 'modules'; TABLE = 'modules'; PARENT_FIELD = 'cours_id'; PARENT_ID = coursId;
+    HAS_TYPE = false; CHILD_HREF_BASE = 'admin-content.html?module_id='; CHILD_LABEL = 'Voir les sections';
+  } else {
+    document.getElementById('page-title').textContent = 'Aucun contenu ciblé';
+    document.getElementById('page-sub').textContent = "Reviens depuis l'administration pour choisir un cours.";
+    document.getElementById('list-state').textContent = '—';
+    throw new Error('missing param');
+  }
+
+  document.getElementById('new-type-field').style.display = HAS_TYPE ? 'flex' : 'none';
+
+  const breadcrumbEl = document.getElementById('breadcrumb');
+  const pageTitleEl = document.getElementById('page-title');
+  const pageSubEl = document.getElementById('page-sub');
+  const panelH2 = document.getElementById('panel-h2');
+  const panelSub = document.getElementById('panel-sub');
+  const listState = document.getElementById('list-state');
+  const adminList = document.getElementById('admin-list');
+  const listMsg = document.getElementById('list-msg');
+
+  // ---- Charge le fil d'ariane + titres selon le niveau ----
+  async function loadContext() {
+    if (LEVEL === 'modules') {
+      const { data: c } = await supabaseClient.from('cours').select('titre').eq('id', coursId).single();
+      breadcrumbEl.innerHTML = `<a href="admin-dashboard.html">Administration</a> / ${escapeHtml(c?.titre || '…')}`;
+      pageTitleEl.textContent = c?.titre || 'Cours';
+      pageSubEl.textContent = 'Gère les modules de ce cours.';
+      panelH2.textContent = 'Modules';
+    } else if (LEVEL === 'sections') {
+      const { data: m } = await supabaseClient.from('modules').select('titre, cours_id').eq('id', moduleId).single();
+      const { data: c } = m ? await supabaseClient.from('cours').select('titre').eq('id', m.cours_id).single() : { data: null };
+      breadcrumbEl.innerHTML = `<a href="admin-dashboard.html">Administration</a> / <a href="admin-content.html?cours_id=${m?.cours_id}">${escapeHtml(c?.titre || '…')}</a> / ${escapeHtml(m?.titre || '…')}`;
+      pageTitleEl.textContent = m?.titre || 'Module';
+      pageSubEl.textContent = 'Gère les sections de ce module.';
+      panelH2.textContent = 'Sections';
+    } else if (LEVEL === 'activites') {
+      const { data: s } = await supabaseClient.from('sections').select('titre, module_id').eq('id', sectionId).single();
+      const { data: m } = s ? await supabaseClient.from('modules').select('titre, cours_id').eq('id', s.module_id).single() : { data: null };
+      breadcrumbEl.innerHTML = `<a href="admin-dashboard.html">Administration</a> / <a href="admin-content.html?cours_id=${m?.cours_id}">…</a> / <a href="admin-content.html?module_id=${s?.module_id}">${escapeHtml(m?.titre || '…')}</a> / ${escapeHtml(s?.titre || '…')}`;
+      pageTitleEl.textContent = s?.titre || 'Section';
+      pageSubEl.textContent = 'Gère les activités de cette section.';
+      panelH2.textContent = 'Activités';
+    }
+  }
+
+  // ---- Toggle formulaire d'ajout ----
+  const addForm = document.getElementById('add-form');
+  document.getElementById('btn-toggle-add').addEventListener('click', () => {
+    addForm.classList.toggle('open');
+    if (addForm.classList.contains('open')) document.getElementById('new-titre').focus();
+  });
+  document.getElementById('btn-cancel-add').addEventListener('click', () => {
+    addForm.classList.remove('open');
+    addForm.reset();
+    hideMsg(document.getElementById('create-msg'));
+  });
+
+  // ---- Liste + CRUD ----
+  async function loadList() {
+    hideMsg(listMsg);
+    const selectFields = HAS_TYPE ? 'id, titre, type, ordre' : 'id, titre, ordre';
+    const { data: items, error } = await supabaseClient
+      .from(TABLE).select(selectFields).eq(PARENT_FIELD, PARENT_ID).order('ordre');
+
+    if (error) {
+      listState.textContent = "Erreur lors du chargement : " + error.message;
+      listState.style.display = 'block'; adminList.style.display = 'none';
+      panelSub.textContent = 'Erreur';
+      return;
+    }
+    if (!items || items.length === 0) {
+      listState.textContent = "Rien pour l'instant. Ajoute le premier élément !";
+      listState.style.display = 'block'; adminList.style.display = 'none';
+      panelSub.textContent = '0 élément';
+      return;
+    }
+
+    panelSub.textContent = items.length + (items.length > 1 ? ' éléments' : ' élément');
+    adminList.innerHTML = '';
+
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'admin-row';
+      const typeTag = HAS_TYPE ? `<span class="type-tag">${escapeHtml(item.type || '—')}</span>` : '';
+      const childLink = CHILD_HREF_BASE ? `<a class="btn btn-ghost" href="${CHILD_HREF_BASE}${item.id}">${CHILD_LABEL}</a>` : '';
+      const editLink = HAS_TYPE ? `<a class="btn btn-ghost" href="admin-editeur.html?activite_id=${item.id}">Éditer →</a>` : '';
+      row.innerHTML = `
+        <div class="marker"></div>
+        <div class="info">
+          <div class="name">${typeTag}${escapeHtml(item.titre)}</div>
+          <div class="meta">Ordre : ${item.ordre ?? 0}</div>
+        </div>
+        <div class="row-actions">
+          ${childLink}
+          ${editLink}
+          <button class="btn btn-ghost" data-action="edit">Modifier</button>
+          <button class="btn btn-ghost-danger" data-action="delete">Supprimer</button>
+        </div>
+      `;
+      adminList.appendChild(row);
+      row.querySelector('[data-action="edit"]').addEventListener('click', () => enterEditMode(row, item));
+      row.querySelector('[data-action="delete"]').addEventListener('click', () => deleteItem(item));
+    });
+
+    listState.style.display = 'none';
+    adminList.style.display = 'flex';
+    adminList.style.flexDirection = 'column';
+  }
+
+  function enterEditMode(row, item) {
+    const typeField = HAS_TYPE ? `
+        <div class="field">
+          <label>Type</label>
+          <select class="edit-type">
+            ${['cours','exercice','fiche','test','video'].map(t => `<option value="${t}" ${item.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+        </div>` : '';
+    row.innerHTML = `
+      <div class="marker"></div>
+      <form class="edit-form">
+        <div class="row-two">
+          <div class="field" style="flex:2;">
+            <label>Titre</label>
+            <input type="text" class="edit-titre" value="${escapeHtml(item.titre)}" required>
+          </div>
+          ${typeField}
+          <div class="field" style="max-width:100px;">
+            <label>Ordre</label>
+            <input type="number" class="edit-ordre" value="${item.ordre ?? 0}">
+          </div>
+        </div>
+        <div class="edit-actions">
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+          <button type="button" class="btn btn-ghost edit-cancel">Annuler</button>
+        </div>
+        <div class="msg edit-msg" style="margin:0;"></div>
+      </form>
+    `;
+    const form = row.querySelector('.edit-form');
+    const editMsg = row.querySelector('.edit-msg');
+    row.querySelector('.edit-cancel').addEventListener('click', () => loadList());
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const titre = row.querySelector('.edit-titre').value.trim();
+      const ordre = parseInt(row.querySelector('.edit-ordre').value, 10) || 0;
+      if (!titre) return;
+
+      const payload = { titre, ordre };
+      if (HAS_TYPE) payload.type = row.querySelector('.edit-type').value;
+
+      const { error } = await supabaseClient.from(TABLE).update(payload).eq('id', item.id);
+      if (error) { showMsg(editMsg, "Erreur : " + error.message, 'error'); return; }
+      loadList();
+    });
+  }
+
+  async function deleteItem(item) {
+    const confirmed = window.confirm('Supprimer "' + item.titre + '" ? Cette action est irréversible.');
+    if (!confirmed) return;
+    const { error } = await supabaseClient.from(TABLE).delete().eq('id', item.id);
+    if (error) { showMsg(listMsg, "Erreur lors de la suppression : " + error.message, 'error'); return; }
+    showMsg(listMsg, 'Élément supprimé.', 'success');
+    loadList();
+  }
+
+  // ---- Création ----
+  const createMsg = document.getElementById('create-msg');
+  const btnCreate = document.getElementById('btn-create');
+
+  addForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg(createMsg);
+    const titre = document.getElementById('new-titre').value.trim();
+    const ordre = parseInt(document.getElementById('new-ordre').value, 10) || 0;
+    if (!titre) return;
+
+    const payload = { titre, ordre, [PARENT_FIELD]: PARENT_ID };
+    if (HAS_TYPE) payload.type = document.getElementById('new-type').value;
+
+    btnCreate.disabled = true; btnCreate.textContent = 'Création...';
+    const { error } = await supabaseClient.from(TABLE).insert(payload);
+    btnCreate.disabled = false; btnCreate.textContent = 'Créer';
+
+    if (error) { showMsg(createMsg, "Erreur : " + error.message, 'error'); return; }
+
+    addForm.reset();
+    addForm.classList.remove('open');
+    loadList();
+  });
+
+  (async () => {
+    const ok = await requireAdmin();
+    if (!ok) return;
+    await loadContext();
+    await loadList();
+  })();
+</script>
+
+</body>
+</html>
