@@ -8,6 +8,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
+<!-- Prism.js : coloration syntaxique du bloc de code (thème sombre + chargement auto des langages) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+<!-- KaTeX : rendu des équations LaTeX (bloc + en ligne) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
 <style>
   :root {
     --slate: #22282A; --slate-light: #2E3638; --paper: #FBF7EE; --paper-dim: #F0EBDD;
@@ -74,6 +83,121 @@
   #editorjs code { background: rgba(42,38,32,0.06); }
   #editorjs mark { background: rgba(217,164,65,0.35); }
 
+  /* ---- Bloc de code : thème sombre façon VS Code ---- */
+  .codeblock-tool {
+    background: #1e1e1e;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 4px 0;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  }
+  .codeblock-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 7px 10px;
+    background: #252526;
+    border-bottom: 1px solid #333;
+  }
+  .codeblock-lang-select {
+    background: #2d2d2d;
+    color: #cccccc;
+    border: 1px solid #3c3c3c;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+  }
+  .codeblock-lang-select:focus { border-color: #5C6FA3; }
+  .codeblock-editor { position: relative; }
+  .codeblock-editor pre,
+  .codeblock-editor textarea {
+    margin: 0;
+    padding: 16px 18px;
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, Menlo, monospace;
+    font-size: 13.5px;
+    line-height: 1.55;
+    white-space: pre;
+    overflow: auto;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 90px;
+    tab-size: 2;
+  }
+  .codeblock-editor pre {
+    background: transparent;
+    color: #d4d4d4;
+    pointer-events: none;
+  }
+  .codeblock-editor pre code {
+    background: transparent !important;
+    padding: 0 !important;
+    font-family: inherit;
+    font-size: inherit;
+  }
+  .codeblock-editor textarea {
+    position: absolute;
+    top: 0; left: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: #ffffff;
+    border: none;
+    resize: none;
+    outline: none;
+    -webkit-text-fill-color: transparent;
+  }
+  .codeblock-editor textarea::placeholder { -webkit-text-fill-color: #6a6a6a; color: #6a6a6a; }
+
+  /* ---- Bloc équation LaTeX ---- */
+  .mathblock-tool {
+    border: 1.5px solid rgba(92,111,163,0.25);
+    background: rgba(92,111,163,0.04);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 4px 0;
+  }
+  .mathblock-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--denim);
+    margin-bottom: 8px;
+  }
+  .mathblock-textarea {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid rgba(42,38,32,0.15);
+    background: transparent;
+    font-family: 'JetBrains Mono', Consolas, Menlo, monospace;
+    font-size: 14px;
+    color: var(--ink);
+    padding: 6px 2px 10px;
+    outline: none;
+    resize: none;
+    min-height: 40px;
+  }
+  .mathblock-textarea:focus { border-bottom-color: var(--denim); }
+  .mathblock-preview {
+    margin-top: 12px;
+    padding: 14px 4px 4px;
+    overflow-x: auto;
+    min-height: 24px;
+  }
+  .mathblock-preview:empty::before {
+    content: 'La formule apparaîtra ici...';
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-style: italic;
+  }
+  .mathblock-preview .katex-error { color: var(--brick); font-size: 13px; font-family: 'Space Grotesk', sans-serif; }
+
+  /* ---- Maths en ligne dans un paragraphe ---- */
+  .inline-math { padding: 0 1px; }
+  .inline-math .katex-error { color: var(--brick); }
+
   .state-box { padding: 60px; text-align: center; color: var(--ink-soft); font-size: 14px; }
 
   .hint-box {
@@ -125,7 +249,7 @@
   </div>
 
   <div class="hint-box">
-    <strong>Astuce :</strong> tape "/" dans l'éditeur pour insérer un titre, une liste, une checklist, une citation, un encadré d'alerte, du code, un tableau, un séparateur, une image (via URL) ou une vidéo (colle un lien YouTube/Vimeo). Sélectionne du texte pour le mettre en gras, italique, souligné ou surligné.
+    <strong>Astuce :</strong> tape "/" dans l'éditeur pour insérer un titre, une liste, une checklist, une citation, un encadré d'alerte, un bloc de code (thème sombre, choisis un langage pour la coloration ou "Brut"), une équation LaTeX, un tableau, un séparateur, une image (via URL) ou une vidéo (colle un lien YouTube/Vimeo). Sélectionne du texte pour le mettre en gras, italique, souligné ou surligné. Tu peux aussi taper directement <code>*italique*</code>, <code>**gras**</code>, <code>`code`</code> ou <code>$E=mc^2$</code> pour une formule en ligne (ça se convertit automatiquement dès que tu fermes la paire).
   </div>
 
   <div class="editor-panel">
@@ -141,7 +265,6 @@
   import Embed from 'https://esm.sh/@editorjs/embed@2.7.6';
   import List from 'https://esm.sh/@editorjs/list@2.0.6';
   import Quote from 'https://esm.sh/@editorjs/quote@2.7.2';
-  import CodeTool from 'https://esm.sh/@editorjs/code@2.9.3';
   import Delimiter from 'https://esm.sh/@editorjs/delimiter@1.4.2';
   import Table from 'https://esm.sh/@editorjs/table@2.4.3';
   import Checklist from 'https://esm.sh/@editorjs/checklist@1.6.0';
@@ -205,6 +328,203 @@
     return a.contenu || null;
   }
 
+  // ---- Outil "code" maison : thème sombre + choix du langage + coloration Prism ----
+  class CodeBlockTool {
+    static get toolbox() {
+      return {
+        title: 'Code',
+        icon: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'
+      };
+    }
+
+    static get languages() {
+      return [
+        { value: 'raw', label: 'Brut (sans coloration)' },
+        { value: 'javascript', label: 'JavaScript' },
+        { value: 'typescript', label: 'TypeScript' },
+        { value: 'python', label: 'Python' },
+        { value: 'html', label: 'HTML' },
+        { value: 'css', label: 'CSS' },
+        { value: 'json', label: 'JSON' },
+        { value: 'php', label: 'PHP' },
+        { value: 'java', label: 'Java' },
+        { value: 'csharp', label: 'C#' },
+        { value: 'c', label: 'C' },
+        { value: 'cpp', label: 'C++' },
+        { value: 'sql', label: 'SQL' },
+        { value: 'bash', label: 'Bash / Shell' },
+        { value: 'yaml', label: 'YAML' },
+        { value: 'markdown', label: 'Markdown' },
+        { value: 'ruby', label: 'Ruby' },
+        { value: 'go', label: 'Go' },
+        { value: 'rust', label: 'Rust' }
+      ];
+    }
+
+    constructor({ data }) {
+      this.data = { code: data.code || '', language: data.language || 'raw' };
+    }
+
+    render() {
+      this.wrapper = document.createElement('div');
+      this.wrapper.classList.add('codeblock-tool');
+
+      const bar = document.createElement('div');
+      bar.classList.add('codeblock-bar');
+
+      this.select = document.createElement('select');
+      this.select.classList.add('codeblock-lang-select');
+      CodeBlockTool.languages.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.value;
+        opt.textContent = l.label;
+        if (l.value === this.data.language) opt.selected = true;
+        this.select.appendChild(opt);
+      });
+      this.select.addEventListener('change', () => {
+        this.data.language = this.select.value;
+        this.highlight();
+      });
+      bar.appendChild(this.select);
+
+      const editorWrap = document.createElement('div');
+      editorWrap.classList.add('codeblock-editor');
+
+      this.pre = document.createElement('pre');
+      this.codeEl = document.createElement('code');
+      this.pre.appendChild(this.codeEl);
+
+      this.textarea = document.createElement('textarea');
+      this.textarea.classList.add('codeblock-textarea');
+      this.textarea.spellcheck = false;
+      this.textarea.value = this.data.code;
+      this.textarea.placeholder = 'Colle ou écris ton code ici...';
+
+      this.textarea.addEventListener('input', () => {
+        this.data.code = this.textarea.value;
+        this.highlight();
+        this.autoResize();
+      });
+      this.textarea.addEventListener('scroll', () => {
+        this.pre.scrollTop = this.textarea.scrollTop;
+        this.pre.scrollLeft = this.textarea.scrollLeft;
+      });
+      this.textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const start = this.textarea.selectionStart;
+          const end = this.textarea.selectionEnd;
+          this.textarea.value = this.textarea.value.slice(0, start) + '  ' + this.textarea.value.slice(end);
+          this.textarea.selectionStart = this.textarea.selectionEnd = start + 2;
+          this.data.code = this.textarea.value;
+          this.highlight();
+          this.autoResize();
+        }
+      });
+
+      editorWrap.appendChild(this.pre);
+      editorWrap.appendChild(this.textarea);
+
+      this.wrapper.appendChild(bar);
+      this.wrapper.appendChild(editorWrap);
+
+      this.highlight();
+      setTimeout(() => this.autoResize(), 0);
+
+      return this.wrapper;
+    }
+
+    highlight() {
+      this.codeEl.textContent = this.data.code;
+      this.codeEl.className = this.data.language === 'raw' ? '' : 'language-' + this.data.language;
+      if (this.data.language !== 'raw' && window.Prism) {
+        window.Prism.highlightElement(this.codeEl);
+      }
+    }
+
+    autoResize() {
+      this.textarea.style.height = 'auto';
+      const h = Math.max(this.textarea.scrollHeight, 90);
+      this.textarea.style.height = h + 'px';
+      this.pre.style.height = h + 'px';
+    }
+
+    save() {
+      return { code: this.data.code, language: this.data.language };
+    }
+
+    static get sanitize() {
+      return { code: {}, language: {} };
+    }
+  }
+
+  // ---- Outil "équation" : LaTeX + rendu KaTeX ----
+  class MathBlockTool {
+    static get toolbox() {
+      return {
+        title: 'Équation',
+        icon: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h12"/><path d="M8 4c0 8-4 12-4 16"/><path d="M14 4c0 4 2 6 2 8s-2 4-2 8"/><path d="M18 12h3"/></svg>'
+      };
+    }
+
+    constructor({ data }) {
+      this.data = { latex: data.latex || '' };
+    }
+
+    render() {
+      this.wrapper = document.createElement('div');
+      this.wrapper.classList.add('mathblock-tool');
+
+      const label = document.createElement('div');
+      label.classList.add('mathblock-label');
+      label.textContent = 'Équation (LaTeX)';
+
+      this.textarea = document.createElement('textarea');
+      this.textarea.classList.add('mathblock-textarea');
+      this.textarea.value = this.data.latex;
+      this.textarea.placeholder = 'Ex : E = mc^2   ou   \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}';
+      this.textarea.rows = 1;
+
+      this.preview = document.createElement('div');
+      this.preview.classList.add('mathblock-preview');
+
+      this.textarea.addEventListener('input', () => {
+        this.data.latex = this.textarea.value;
+        this.textarea.style.height = 'auto';
+        this.textarea.style.height = this.textarea.scrollHeight + 'px';
+        this.renderPreview();
+      });
+
+      this.wrapper.appendChild(label);
+      this.wrapper.appendChild(this.textarea);
+      this.wrapper.appendChild(this.preview);
+
+      this.renderPreview();
+      setTimeout(() => {
+        this.textarea.style.height = this.textarea.scrollHeight + 'px';
+      }, 0);
+
+      return this.wrapper;
+    }
+
+    renderPreview() {
+      if (!this.data.latex.trim()) { this.preview.innerHTML = ''; return; }
+      try {
+        window.katex.render(this.data.latex, this.preview, { throwOnError: true, displayMode: true });
+      } catch (e) {
+        this.preview.innerHTML = '<div class="katex-error">Erreur LaTeX : ' + e.message + '</div>';
+      }
+    }
+
+    save() {
+      return { latex: this.data.latex };
+    }
+
+    static get sanitize() {
+      return { latex: {} };
+    }
+  }
+
   // ---- Initialise Editor.js ----
   function initEditor(existingData) {
     editor = new EditorJS({
@@ -237,7 +557,10 @@
           config: { titlePlaceholder: 'Titre', messagePlaceholder: 'Message important' }
         },
         code: {
-          class: CodeTool
+          class: CodeBlockTool
+        },
+        math: {
+          class: MathBlockTool
         },
         delimiter: Delimiter,
         table: {
@@ -260,7 +583,57 @@
       onReady: () => {
         editorStateEl.style.display = 'none';
         document.getElementById('editorjs').style.display = 'block';
+        enableMarkdownShortcuts();
       }
+    });
+  }
+
+  // ---- Raccourcis markdown à la volée : *italique*, **gras**, `code` ----
+  // (_italique_ et __gras__ acceptés aussi, comme en Markdown classique)
+  function placeCaretAtEnd(el) {
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function applyMarkdownShortcuts(el) {
+    // On ne touche qu'aux blocs de texte simple (pas de code, pas de tableau,
+    // et pas de contenu déjà enrichi pour éviter de casser le HTML existant).
+    if (!el || el.children.length > 0) return;
+    if (el.closest('.cdx-code') || el.closest('.tc-table') || el.closest('.ce-code')) return;
+
+    const original = el.textContent;
+    let text = original;
+
+    text = text.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    text = text.replace(/\$([^$\n]+)\$/g, (match, expr) => {
+      if (!window.katex) return match;
+      try {
+        const html = window.katex.renderToString(expr, { throwOnError: true, output: 'html' });
+        return '<span class="inline-math" contenteditable="false">' + html + '</span>';
+      } catch (e) {
+        return '<span class="inline-math"><span class="katex-error">' + expr + '</span></span>';
+      }
+    });
+    text = text.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/__([^_\n]+)__/g, '<strong>$1</strong>');
+    text = text.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    text = text.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+
+    if (text !== original) {
+      el.innerHTML = text;
+      placeCaretAtEnd(el);
+    }
+  }
+
+  function enableMarkdownShortcuts() {
+    document.getElementById('editorjs').addEventListener('input', (e) => {
+      const target = e.target.closest('[contenteditable="true"]');
+      applyMarkdownShortcuts(target);
     });
   }
 
