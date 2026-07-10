@@ -588,29 +588,14 @@
     });
   }
 
-  // ---- Raccourcis markdown à la volée : *italique*, **gras**, `code` ----
+  // ---- Raccourcis markdown à la volée : *italique*, **gras**, `code`, $math$ ----
   // (_italique_ et __gras__ acceptés aussi, comme en Markdown classique)
-  function placeCaretAtEnd(el) {
-    el.focus();
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    range.collapse(false);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
-
-  function applyMarkdownShortcuts(el) {
-    // On ne touche qu'aux blocs de texte simple (pas de code, pas de tableau,
-    // et pas de contenu déjà enrichi pour éviter de casser le HTML existant).
-    if (!el || el.children.length > 0) return;
-    if (el.closest('.cdx-code') || el.closest('.tc-table') || el.closest('.ce-code')) return;
-
-    const original = el.textContent;
-    let text = original;
-
-    text = text.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-    text = text.replace(/\$([^$\n]+)\$/g, (match, expr) => {
+  // On ne convertit que le nœud texte où se trouve le curseur, pas tout le bloc :
+  // ça permet d'enchaîner plusieurs conversions dans le même paragraphe.
+  function convertMarkdownInText(text) {
+    let out = text;
+    out = out.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    out = out.replace(/\$([^$\n]+)\$/g, (match, expr) => {
       if (!window.katex) return match;
       try {
         const html = window.katex.renderToString(expr, { throwOnError: true, output: 'html' });
@@ -619,15 +604,50 @@
         return '<span class="inline-math"><span class="katex-error">' + expr + '</span></span>';
       }
     });
-    text = text.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
-    text = text.replace(/__([^_\n]+)__/g, '<strong>$1</strong>');
-    text = text.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
-    text = text.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+    out = out.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+    out = out.replace(/__([^_\n]+)__/g, '<strong>$1</strong>');
+    out = out.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+    out = out.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+    return out;
+  }
 
-    if (text !== original) {
-      el.innerHTML = text;
-      placeCaretAtEnd(el);
-    }
+  function applyMarkdownShortcuts(el) {
+    if (!el) return;
+    if (el.closest('.cdx-code') || el.closest('.tc-table') || el.closest('.ce-code')) return;
+
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return;
+    const range = sel.getRangeAt(0);
+    const node = range.startContainer;
+
+    // On ne traite que le nœud texte contenant le curseur, et seulement s'il
+    // appartient bien au bloc édité (pas à un <code> ou une formule déjà rendue).
+    if (node.nodeType !== Node.TEXT_NODE || !el.contains(node)) return;
+    if (node.parentElement && node.parentElement.closest('code, .inline-math')) return;
+
+    const original = node.textContent;
+    const converted = convertMarkdownInText(original);
+    if (converted === original) return;
+
+    // Remplace uniquement ce nœud texte, en laissant le reste du bloc intact.
+    const temp = document.createElement('span');
+    temp.innerHTML = converted;
+    const frag = document.createDocumentFragment();
+    while (temp.firstChild) frag.appendChild(temp.firstChild);
+
+    // Espace insécable invisible en bout de segment : sans lui, le navigateur
+    // continue d'appliquer le style (italique/gras) du dernier élément inline
+    // à tout ce qu'on tape ensuite.
+    const zwsp = document.createTextNode('\u200B');
+    frag.appendChild(zwsp);
+
+    node.parentNode.replaceChild(frag, node);
+
+    const newRange = document.createRange();
+    newRange.setStart(zwsp, zwsp.length);
+    newRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
   }
 
   function enableMarkdownShortcuts() {
@@ -635,6 +655,19 @@
       const target = e.target.closest('[contenteditable="true"]');
       applyMarkdownShortcuts(target);
     });
+  }
+
+  // Nettoie les espaces invisibles (\u200B) ajoutés par les raccourcis markdown
+  // avant d'enregistrer, pour ne pas les stocker dans le contenu final.
+  function stripZeroWidthSpaces(value) {
+    if (typeof value === 'string') return value.replace(/\u200B/g, '');
+    if (Array.isArray(value)) return value.map(stripZeroWidthSpaces);
+    if (value && typeof value === 'object') {
+      const out = {};
+      for (const key in value) out[key] = stripZeroWidthSpaces(value[key]);
+      return out;
+    }
+    return value;
   }
 
   // ---- Sauvegarde ----
@@ -645,7 +678,7 @@
     btnSave.textContent = 'Enregistrement...';
 
     try {
-      const outputData = await editor.save();
+      const outputData = stripZeroWidthSpaces(await editor.save());
       const { error } = await supabaseClient
         .from('activites')
         .update({ contenu: outputData })
