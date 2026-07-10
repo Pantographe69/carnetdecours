@@ -8,21 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
-<!-- Editor.js + blocs de base -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/simple-image@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/warning@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
-
 <style>
   :root {
     --slate: #22282A; --slate-light: #2E3638; --paper: #FBF7EE; --paper-dim: #F0EBDD;
@@ -149,7 +134,20 @@
   </div>
 </main>
 
-<script>
+<script type="module">
+  import EditorJS from 'https://esm.sh/@editorjs/editorjs@2.30.7';
+  import Header from 'https://esm.sh/@editorjs/header@2.8.8';
+  import SimpleImage from 'https://esm.sh/@editorjs/simple-image@1.6.0';
+  import Embed from 'https://esm.sh/@editorjs/embed@2.7.6';
+  import List from 'https://esm.sh/@editorjs/list@2.0.6';
+  import Quote from 'https://esm.sh/@editorjs/quote@2.7.2';
+  import CodeTool from 'https://esm.sh/@editorjs/code@2.9.3';
+  import Delimiter from 'https://esm.sh/@editorjs/delimiter@1.4.2';
+  import Table from 'https://esm.sh/@editorjs/table@2.4.3';
+  import Checklist from 'https://esm.sh/@editorjs/checklist@1.6.0';
+  import Warning from 'https://esm.sh/@editorjs/warning@1.4.1';
+  import Marker from 'https://esm.sh/@editorjs/marker@1.4.0';
+  import Underline from 'https://esm.sh/@editorjs/underline@1.1.0';
   const SUPABASE_URL = 'https://zahbiiddqtjcbggdtevt.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_HzPYCgN_qyi29hzPi8Q_wA_r0oiKj83';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
