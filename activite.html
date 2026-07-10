@@ -98,6 +98,44 @@
     border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.15); background: #000; }
   .render-video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
+  /* ---- Module d'exercice : calcul mathématique ---- */
+  .exo-calc {
+    border: 1.5px solid rgba(217,164,65,0.35);
+    background: rgba(217,164,65,0.06);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin: 0 0 20px;
+  }
+  .exo-calc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--amber); margin-bottom: 14px; }
+  .exo-calc-statement { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; font-size: 17px; margin-bottom: 18px; padding: 4px 0; overflow-x: auto; }
+  .exo-calc-eq { font-weight: 700; color: var(--ink); }
+  .exo-calc-lines { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .exo-line { display: flex; align-items: center; gap: 10px; }
+  .exo-line-num { flex-shrink: 0; width: 20px; text-align: right; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+  .exo-line-input {
+    flex: 1; border: none; border-bottom: 2px solid rgba(42,38,32,0.18); background: transparent;
+    font-family: 'JetBrains Mono', Consolas, Menlo, monospace; font-size: 15px; color: var(--ink);
+    padding: 6px 4px 8px; outline: none; transition: border-color 0.2s ease;
+  }
+  .exo-line-input:focus { border-bottom-color: var(--denim); }
+  .exo-line-input:disabled { opacity: 0.6; }
+  .exo-calc-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .exo-calc-validate {
+    border: none; background: var(--teal); color: var(--paper); font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: 13.5px; padding: 10px 22px; border-radius: 8px; cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink); transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .exo-calc-validate:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+  .exo-calc-validate:active:not(:disabled) { transform: translate(0,0); box-shadow: 1px 1px 0 var(--ink); }
+  .exo-calc-validate:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: 3px 3px 0 rgba(42,38,32,0.15); }
+  .exo-calc-feedback { font-size: 13.5px; font-weight: 600; }
+  .exo-calc-feedback.success { color: var(--teal); }
+  .exo-calc-feedback.error { color: var(--brick); }
+  .exo-calc-done {
+    display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--teal);
+    background: rgba(79,143,130,0.12); padding: 8px 16px; border-radius: 999px; font-size: 13.5px;
+  }
+
   .state-box { padding: 60px; text-align: center; color: var(--ink-soft); font-size: 14px; }
 
   .locked-box { background: var(--paper); color: var(--ink); border-radius: 14px; box-shadow: 0 14px 32px rgba(0,0,0,0.28);
@@ -198,7 +236,7 @@
 
   function renderInline(html) { return html || ''; }
 
-  function renderBlock(block) {
+  function renderBlock(block, ctx) {
     const data = block.data || {};
     switch (block.type) {
       case 'header': {
@@ -319,12 +357,200 @@
         }
         return figure;
       }
+      case 'exoModule': {
+        if (data.exoType === 'calcul') return renderExoCalcul(data, ctx);
+        return null;
+      }
       default:
         return null;
     }
   }
 
-  function renderContent(contenu) {
+  // ---- Évaluateur d'expressions arithmétiques sûr (pas de eval()) ----
+  // Supporte + - * / ^ (), les décimales avec '.' ou ',', et 'x'/'X'/'×' comme
+  // signe de multiplication (il n'y a pas de variables dans ce type d'exercice).
+  function evaluateMathExpression(raw) {
+    if (raw == null) return null;
+    let expr = String(raw).trim();
+    if (!expr) return null;
+    expr = expr.replace(/,/g, '.');
+    expr = expr.replace(/×/g, '*').replace(/÷/g, '/');
+    expr = expr.replace(/[xX]/g, '*');
+    expr = expr.replace(/\s+/g, '');
+    if (!expr) return null;
+    if (!/^[0-9+\-*/^().]+$/.test(expr)) return null;
+
+    let pos = 0;
+    const peek = () => expr[pos];
+    const consume = () => expr[pos++];
+
+    function parseExpression() {
+      let value = parseTerm();
+      while (peek() === '+' || peek() === '-') {
+        const op = consume();
+        const rhs = parseTerm();
+        value = op === '+' ? value + rhs : value - rhs;
+      }
+      return value;
+    }
+    function parseTerm() {
+      let value = parseFactor();
+      while (peek() === '*' || peek() === '/') {
+        const op = consume();
+        const rhs = parseFactor();
+        value = op === '*' ? value * rhs : value / rhs;
+      }
+      return value;
+    }
+    function parseFactor() {
+      if (peek() === '+') { consume(); return parseFactor(); }
+      if (peek() === '-') { consume(); return -parseFactor(); }
+      let value = parseBase();
+      if (peek() === '^') { consume(); value = Math.pow(value, parseFactor()); }
+      return value;
+    }
+    function parseBase() {
+      if (peek() === '(') {
+        consume();
+        const value = parseExpression();
+        if (peek() === ')') consume();
+        return value;
+      }
+      const start = pos;
+      while (pos < expr.length && /[0-9.]/.test(peek())) pos++;
+      if (pos === start) throw new Error('bad expr');
+      return parseFloat(expr.slice(start, pos));
+    }
+
+    try {
+      const result = parseExpression();
+      if (pos !== expr.length || !isFinite(result)) return null;
+      return result;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ---- Rendu du bloc "Module d'exercice" (type calcul mathématique) ----
+  function renderExoCalcul(data, ctx) {
+    const wrap = document.createElement('div');
+    wrap.className = 'exo-calc';
+
+    const label = document.createElement('div');
+    label.className = 'exo-calc-label';
+    label.textContent = '🧮 Calcul mathématique';
+    wrap.appendChild(label);
+
+    const statement = document.createElement('div');
+    statement.className = 'exo-calc-statement';
+    const exprEl = document.createElement('span');
+    statement.appendChild(exprEl);
+    try {
+      window.katex.render(data.entree || '', exprEl, { throwOnError: true, displayMode: false });
+    } catch (e) {
+      exprEl.textContent = data.entree || '';
+    }
+    const eqMark = document.createElement('span');
+    eqMark.className = 'exo-calc-eq';
+    eqMark.textContent = '= ?';
+    statement.appendChild(eqMark);
+    wrap.appendChild(statement);
+
+    if (ctx && ctx.isDone) {
+      const done = document.createElement('div');
+      done.className = 'exo-calc-done';
+      done.textContent = '✓ Exercice réussi';
+      wrap.appendChild(done);
+      return wrap;
+    }
+
+    const linesWrap = document.createElement('div');
+    linesWrap.className = 'exo-calc-lines';
+    wrap.appendChild(linesWrap);
+
+    function addLine(focus) {
+      const n = linesWrap.children.length + 1;
+      const row = document.createElement('div');
+      row.className = 'exo-line';
+
+      const num = document.createElement('span');
+      num.className = 'exo-line-num';
+      num.textContent = n + '.';
+      row.appendChild(num);
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'exo-line-input';
+      input.placeholder = n === 1 ? 'Écris une étape, puis Entrée...' : '';
+      input.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        if (!input.value.trim()) return;
+        const rows = Array.from(linesWrap.children);
+        const isLast = rows[rows.length - 1] === row;
+        if (isLast) {
+          addLine(true);
+        } else {
+          const idx = rows.indexOf(row);
+          const nextInput = rows[idx + 1] && rows[idx + 1].querySelector('input');
+          if (nextInput) nextInput.focus();
+        }
+      });
+      row.appendChild(input);
+
+      linesWrap.appendChild(row);
+      if (focus) input.focus();
+      return input;
+    }
+
+    addLine(false);
+
+    const actions = document.createElement('div');
+    actions.className = 'exo-calc-actions';
+    const validateBtn = document.createElement('button');
+    validateBtn.type = 'button';
+    validateBtn.className = 'exo-calc-validate';
+    validateBtn.textContent = 'Valider';
+    actions.appendChild(validateBtn);
+
+    const feedback = document.createElement('span');
+    feedback.className = 'exo-calc-feedback';
+    actions.appendChild(feedback);
+    wrap.appendChild(actions);
+
+    validateBtn.addEventListener('click', async () => {
+      const inputs = Array.from(linesWrap.querySelectorAll('.exo-line-input'));
+      let lastVal = '';
+      inputs.forEach(inp => { if (inp.value.trim()) lastVal = inp.value.trim(); });
+
+      if (!lastVal) {
+        feedback.textContent = 'Écris au moins une étape avant de valider.';
+        feedback.className = 'exo-calc-feedback error';
+        return;
+      }
+
+      const userResult = evaluateMathExpression(lastVal);
+      const expected = evaluateMathExpression(data.sortie || '');
+      const correct = userResult !== null && expected !== null && Math.abs(userResult - expected) < 1e-6;
+
+      if (correct) {
+        feedback.textContent = '✓ Bravo, c\'est correct !';
+        feedback.className = 'exo-calc-feedback success';
+        inputs.forEach(i => { i.disabled = true; });
+        validateBtn.disabled = true;
+        if (ctx && ctx.onExerciseSuccess) {
+          try { await ctx.onExerciseSuccess(); } catch (e) { /* l'exercice reste marqué réussi visuellement */ }
+        }
+      } else {
+        feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
+        feedback.className = 'exo-calc-feedback error';
+      }
+    });
+
+    return wrap;
+  }
+
+  function renderContent(contenu, ctx) {
     contentBlocksEl.innerHTML = '';
     const blocks = (contenu && contenu.blocks) || [];
     if (blocks.length === 0) {
@@ -336,7 +562,7 @@
       return;
     }
     blocks.forEach(block => {
-      const el = renderBlock(block);
+      const el = renderBlock(block, ctx);
       if (el) contentBlocksEl.appendChild(el);
     });
     if (window.Prism) window.Prism.highlightAllUnder(contentBlocksEl);
@@ -405,7 +631,6 @@
 
     pageTitleEl.textContent = a.titre;
     typeTagEl.textContent = a.type || '—';
-    renderContent(a.contenu);
 
     let isDone = termineIds.has(a.id);
     function updateDoneButton() {
@@ -414,16 +639,27 @@
     }
     updateDoneButton();
 
-    btnDone.addEventListener('click', async () => {
-      btnDone.disabled = true;
-      const nextValue = !isDone;
+    // Utilisé à la fois par le bouton "Marquer comme terminé" et par la
+    // validation réussie d'un module d'exercice dans le contenu.
+    async function markDone(value) {
       const { error } = await supabaseClient
         .from('progression')
-        .upsert({ user_id: userId, activite_id: a.id, termine: nextValue }, { onConflict: 'user_id,activite_id' });
-      btnDone.disabled = false;
-      if (error) { alert('Erreur : ' + error.message); return; }
-      isDone = nextValue;
+        .upsert({ user_id: userId, activite_id: a.id, termine: value }, { onConflict: 'user_id,activite_id' });
+      if (error) throw error;
+      isDone = value;
       updateDoneButton();
+    }
+
+    renderContent(a.contenu, { isDone, onExerciseSuccess: () => markDone(true) });
+
+    btnDone.addEventListener('click', async () => {
+      btnDone.disabled = true;
+      try {
+        await markDone(!isDone);
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+      }
+      btnDone.disabled = false;
     });
 
     stateBox.style.display = 'none';

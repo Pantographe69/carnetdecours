@@ -194,6 +194,77 @@
   }
   .mathblock-preview .katex-error { color: var(--brick); font-size: 13px; font-family: 'Space Grotesk', sans-serif; }
 
+  /* ---- Bloc "Module d'exercice" ---- */
+  .exoblock-tool {
+    border: 1.5px solid rgba(217,164,65,0.35);
+    background: rgba(217,164,65,0.05);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 4px 0;
+  }
+  .exoblock-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .exoblock-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--amber); }
+  .exoblock-change {
+    border: 1px solid rgba(42,38,32,0.15); background: transparent; color: var(--ink-soft);
+    font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 999px; cursor: pointer; flex-shrink: 0;
+  }
+  .exoblock-change:hover { background: var(--paper-dim); color: var(--ink); }
+  .exoblock-empty { text-align: center; padding: 10px 4px; }
+  .exoblock-empty-label { font-size: 13.5px; color: var(--ink-soft); font-weight: 600; margin-bottom: 12px; }
+  .exoblock-pick-btn {
+    border: none; background: var(--amber); color: var(--ink); font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: 13px; padding: 9px 20px; border-radius: 8px; cursor: pointer;
+  }
+  .exoblock-pick-btn:hover { opacity: 0.9; }
+
+  .exoblock-field { margin-bottom: 14px; }
+  .exoblock-field:last-child { margin-bottom: 0; }
+  .exoblock-field-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--denim); margin-bottom: 6px; }
+  .exoblock-textarea {
+    width: 100%; border: none; border-bottom: 2px solid rgba(42,38,32,0.15); background: transparent;
+    font-family: 'JetBrains Mono', Consolas, Menlo, monospace; font-size: 14px; color: var(--ink);
+    padding: 6px 2px 8px; outline: none; resize: none; min-height: 36px;
+  }
+  .exoblock-textarea:focus { border-bottom-color: var(--denim); }
+  .exoblock-preview { margin-top: 8px; padding: 8px 4px 2px; overflow-x: auto; min-height: 20px; }
+  .exoblock-preview:empty::before { content: 'Aperçu...'; color: var(--ink-soft); font-size: 12.5px; font-style: italic; }
+  .exoblock-preview .katex-error { color: var(--brick); font-size: 12.5px; font-family: 'Space Grotesk', sans-serif; }
+  .exoblock-hint { font-size: 11.5px; color: var(--ink-soft); margin-top: 14px; line-height: 1.5; }
+
+  /* ---- Modale de choix du type d'exercice ---- */
+  .exo-modal-overlay {
+    position: fixed; inset: 0; background: rgba(34,40,42,0.72); display: flex;
+    align-items: center; justify-content: center; z-index: 1000; padding: 24px;
+  }
+  .exo-modal {
+    background: var(--paper); color: var(--ink); border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    padding: 32px; max-width: 480px; width: 100%;
+  }
+  .exo-modal h3 { font-family: 'Caveat', cursive; font-size: 28px; margin-bottom: 6px; }
+  .exo-modal p { font-size: 13px; color: var(--ink-soft); margin-bottom: 20px; }
+  .exo-type-list { display: flex; flex-direction: column; gap: 10px; }
+  .exo-type-card {
+    display: flex; align-items: center; gap: 12px; border: 1.5px solid rgba(42,38,32,0.12); border-radius: 10px;
+    padding: 14px 16px; cursor: pointer; background: var(--chalk); transition: all 0.15s ease; text-align: left;
+    font-family: 'Space Grotesk', sans-serif; width: 100%;
+  }
+  .exo-type-card:hover { border-color: var(--denim); background: #fff; }
+  .exo-type-card[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .exo-type-card[disabled]:hover { border-color: rgba(42,38,32,0.12); background: var(--chalk); }
+  .exo-type-icon { font-size: 20px; flex-shrink: 0; }
+  .exo-type-name { font-weight: 700; font-size: 14px; margin-bottom: 2px; color: var(--ink); }
+  .exo-type-desc { font-size: 12px; color: var(--ink-soft); }
+  .exo-type-soon {
+    font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    background: rgba(42,38,32,0.1); color: var(--ink-soft); padding: 2px 7px; border-radius: 999px; margin-left: auto; flex-shrink: 0;
+  }
+  .exo-modal-cancel {
+    display: block; margin: 18px auto 0; border: none; background: transparent; color: var(--ink-soft);
+    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+  .exo-modal-cancel:hover { color: var(--brick); }
+
   /* ---- Maths en ligne dans un paragraphe ---- */
   .inline-math { padding: 0 1px; }
   .inline-math .katex-error { color: var(--brick); }
@@ -302,6 +373,10 @@
     <strong>Astuce :</strong> tape "/" dans l'éditeur pour insérer un titre, une liste, une checklist, une citation, un encadré d'alerte, un bloc de code (thème sombre, choisis un langage pour la coloration ou "Brut"), une équation LaTeX, un tableau, un séparateur, une <strong>Image</strong> (colle une URL, elle s'affiche centrée avec une légende optionnelle) ou une <strong>Vidéo</strong> (colle un lien YouTube, elle s'intègre centrée en format responsive). Sélectionne du texte pour le mettre en gras, italique, souligné ou surligné. Tu peux aussi taper directement <code>*gras*</code>, <code>_italique_</code>, <code>`code`</code> ou <code>$E=mc^2$</code> pour une formule en ligne (ça se convertit automatiquement dès que tu fermes la paire).
   </div>
 
+  <div class="hint-box" id="hint-exo" style="display:none;">
+    <strong>Exercice :</strong> tape "/" et choisis <strong>Module d'exercice</strong> pour ajouter le bloc interactif de cette activité (un seul par exercice). Une fenêtre te permet de choisir son type, puis de le paramétrer.
+  </div>
+
   <div class="editor-panel">
     <div id="editor-state" class="state-box">Chargement de l'éditeur...</div>
     <div id="editorjs"></div>
@@ -354,6 +429,7 @@
   }
 
   let editor;
+  let currentActiviteType = '';
 
   // ---- Fil d'ariane + titre ----
   async function loadContext() {
@@ -376,6 +452,7 @@
 
     pageTitleEl.textContent = a.titre;
     typeTagEl.textContent = a.type || '—';
+    currentActiviteType = a.type || '';
 
     return a.contenu || null;
   }
@@ -817,13 +894,201 @@
     }
   }
 
+  // ---- Outil "Module d'exercice" : un seul par activité de type exercice.
+  // Une modale fait choisir un type (pour l'instant seul "Calcul mathématique"
+  // est implémenté, les autres apparaissent en gris "Bientôt" pour montrer que
+  // c'est extensible), puis affiche les réglages propres à ce type.
+  class ExoModuleTool {
+    static get toolbox() {
+      return {
+        title: "Module d'exercice",
+        icon: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>'
+      };
+    }
+
+    static get exoTypes() {
+      return [
+        { value: 'calcul', icon: '🧮', name: 'Calcul mathématique', desc: "L'élève retrouve, étape par étape, un résultat numérique attendu.", soon: false },
+        { value: 'qcm', icon: '☑️', name: 'QCM', desc: 'Question à choix multiples.', soon: true },
+        { value: 'trous', icon: '✏️', name: 'Texte à trous', desc: 'Complète les mots ou valeurs manquantes.', soon: true }
+      ];
+    }
+
+    constructor({ data }) {
+      this.data = {
+        exoType: data.exoType || '',
+        entree: data.entree || '',
+        sortie: data.sortie || ''
+      };
+    }
+
+    render() {
+      this.wrapper = document.createElement('div');
+      this.wrapper.classList.add('exoblock-tool');
+      this.renderContent();
+      return this.wrapper;
+    }
+
+    renderContent() {
+      this.wrapper.innerHTML = '';
+
+      if (!this.data.exoType) {
+        const box = document.createElement('div');
+        box.classList.add('exoblock-empty');
+        box.innerHTML = `
+          <div class="exoblock-empty-label">🎯 Module d'exercice</div>
+          <button type="button" class="exoblock-pick-btn">Choisir le type d'exercice</button>
+        `;
+        box.querySelector('.exoblock-pick-btn').addEventListener('click', () => this.openTypeModal());
+        this.wrapper.appendChild(box);
+        // Ouvre directement la modale dès l'insertion du bloc.
+        setTimeout(() => { if (!this.data.exoType) this.openTypeModal(); }, 0);
+        return;
+      }
+
+      const typeInfo = ExoModuleTool.exoTypes.find(t => t.value === this.data.exoType);
+
+      const header = document.createElement('div');
+      header.classList.add('exoblock-header');
+      const title = document.createElement('span');
+      title.classList.add('exoblock-title');
+      title.textContent = "🎯 Module d'exercice — " + (typeInfo ? typeInfo.name : this.data.exoType);
+      header.appendChild(title);
+      const changeBtn = document.createElement('button');
+      changeBtn.type = 'button';
+      changeBtn.classList.add('exoblock-change');
+      changeBtn.textContent = 'Changer de type';
+      changeBtn.addEventListener('click', () => this.openTypeModal());
+      header.appendChild(changeBtn);
+      this.wrapper.appendChild(header);
+
+      if (this.data.exoType === 'calcul') this.renderCalculConfig();
+    }
+
+    openTypeModal() {
+      const overlay = document.createElement('div');
+      overlay.classList.add('exo-modal-overlay');
+
+      const modal = document.createElement('div');
+      modal.classList.add('exo-modal');
+      modal.innerHTML = `<h3>Type d'exercice</h3><p>Choisis le type de ce module d'exercice.</p>`;
+
+      const list = document.createElement('div');
+      list.classList.add('exo-type-list');
+
+      ExoModuleTool.exoTypes.forEach(t => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.classList.add('exo-type-card');
+        if (t.soon) card.disabled = true;
+        card.innerHTML = `
+          <span class="exo-type-icon">${t.icon}</span>
+          <span>
+            <div class="exo-type-name">${escapeHtml(t.name)}</div>
+            <div class="exo-type-desc">${escapeHtml(t.desc)}</div>
+          </span>
+          ${t.soon ? '<span class="exo-type-soon">Bientôt</span>' : ''}
+        `;
+        if (!t.soon) {
+          card.addEventListener('click', () => {
+            this.data.exoType = t.value;
+            if (overlay.parentNode) document.body.removeChild(overlay);
+            this.renderContent();
+          });
+        }
+        list.appendChild(card);
+      });
+      modal.appendChild(list);
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.classList.add('exo-modal-cancel');
+      cancelBtn.textContent = 'Annuler';
+      cancelBtn.addEventListener('click', () => { if (overlay.parentNode) document.body.removeChild(overlay); });
+      modal.appendChild(cancelBtn);
+
+      overlay.appendChild(modal);
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay && overlay.parentNode) document.body.removeChild(overlay);
+      });
+      document.body.appendChild(overlay);
+    }
+
+    renderCalculConfig() {
+      const entreeField = this.buildMathField(
+        "Expression d'entrée",
+        this.data.entree,
+        (val) => { this.data.entree = val; }
+      );
+      const sortieField = this.buildMathField(
+        'Résultat de sortie attendu',
+        this.data.sortie,
+        (val) => { this.data.sortie = val; }
+      );
+      this.wrapper.appendChild(entreeField);
+      this.wrapper.appendChild(sortieField);
+
+      const hint = document.createElement('div');
+      hint.classList.add('exoblock-hint');
+      hint.textContent = "Côté élève : l'expression d'entrée s'affiche, et l'élève tape ses étapes de calcul ligne par ligne (Entrée pour passer à la suivante). Dès que sa dernière ligne remplie est numériquement égale au résultat de sortie, l'exercice est validé.";
+      this.wrapper.appendChild(hint);
+    }
+
+    // Champ texte + aperçu KaTeX en direct, sur le même principe que MathBlockTool.
+    buildMathField(labelText, initialValue, onInput) {
+      const field = document.createElement('div');
+      field.classList.add('exoblock-field');
+
+      const label = document.createElement('div');
+      label.classList.add('exoblock-field-label');
+      label.textContent = labelText;
+      field.appendChild(label);
+
+      const textarea = document.createElement('textarea');
+      textarea.classList.add('exoblock-textarea');
+      textarea.value = initialValue;
+      textarea.placeholder = 'Ex : 5x2+4';
+      textarea.rows = 1;
+      field.appendChild(textarea);
+
+      const preview = document.createElement('div');
+      preview.classList.add('exoblock-preview');
+      field.appendChild(preview);
+
+      const renderPreview = () => {
+        if (!textarea.value.trim()) { preview.innerHTML = ''; return; }
+        try {
+          window.katex.render(textarea.value, preview, { throwOnError: true, displayMode: false });
+        } catch (e) {
+          preview.innerHTML = '<div class="katex-error">' + escapeHtml(textarea.value) + '</div>';
+        }
+      };
+
+      textarea.addEventListener('input', () => {
+        onInput(textarea.value);
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+        renderPreview();
+      });
+
+      renderPreview();
+      setTimeout(() => { textarea.style.height = textarea.scrollHeight + 'px'; }, 0);
+
+      return field;
+    }
+
+    save() {
+      return { exoType: this.data.exoType, entree: this.data.entree, sortie: this.data.sortie };
+    }
+
+    static get sanitize() {
+      return { exoType: {}, entree: {}, sortie: {} };
+    }
+  }
+
   // ---- Initialise Editor.js ----
   function initEditor(existingData) {
-    editor = new EditorJS({
-      holder: 'editorjs',
-      placeholder: 'Commence à écrire ici, ou tape "/" pour insérer un bloc...',
-      data: existingData || { blocks: [] },
-      tools: {
+    const tools = {
         // Le paragraphe par défaut d'Editor.js retire les blocs vides à la sauvegarde
         // (validate() -> false dès que le texte est vide). C'était la cause des lignes
         // vides utilisées pour l'espacement qui disparaissaient au rechargement.
@@ -877,7 +1142,20 @@
         underline: Underline,
         inlineCode: InlineCode,
         mathInline: MathInlineTool
-      },
+    };
+
+    // Le bloc "Module d'exercice" n'a de sens que pour les activités de type
+    // "exercice" : on ne l'ajoute à la boîte à outils que dans ce cas.
+    if (currentActiviteType === 'exercice') {
+      tools.exoModule = { class: ExoModuleTool };
+    }
+
+    editor = new EditorJS({
+      holder: 'editorjs',
+      placeholder: 'Commence à écrire ici, ou tape "/" pour insérer un bloc...',
+      data: existingData || { blocks: [] },
+      tools,
+      onChange: (api) => { scheduleExoUniquenessCheck(api); },
       onReady: () => {
         editorStateEl.style.display = 'none';
         document.getElementById('editorjs').style.display = 'block';
@@ -885,6 +1163,32 @@
         hydrateMathSpans();
       }
     });
+  }
+
+  // ---- Contrainte : un seul bloc "Module d'exercice" par activité ----
+  // On revérifie à chaque changement (débattu pour ne pas spammer) plutôt que
+  // d'essayer de masquer l'entrée de la boîte à outils, qu'Editor.js ne permet
+  // pas de piloter dynamiquement de façon fiable.
+  let exoUniquenessTimer = null;
+  function scheduleExoUniquenessCheck(api) {
+    clearTimeout(exoUniquenessTimer);
+    exoUniquenessTimer = setTimeout(() => enforceSingleExoModule(api), 60);
+  }
+  function enforceSingleExoModule(api) {
+    const count = api.blocks.getBlocksCount();
+    let seenIndex = -1;
+    for (let i = 0; i < count; i++) {
+      const block = api.blocks.getBlockByIndex(i);
+      if (block && block.name === 'exoModule') {
+        if (seenIndex === -1) {
+          seenIndex = i;
+        } else {
+          api.blocks.delete(i);
+          alert("Un seul module d'exercice est autorisé par exercice : le bloc en trop a été supprimé.");
+          return;
+        }
+      }
+    }
   }
 
   // Rend (ou re-rend) le KaTeX d'un <span class="inline-math" data-latex="...">.
@@ -1033,6 +1337,10 @@
     const ok = await requireAdmin();
     if (!ok) return;
     const existingData = await loadContext();
+    if (currentActiviteType === 'exercice') {
+      const exoHint = document.getElementById('hint-exo');
+      if (exoHint) exoHint.style.display = 'block';
+    }
     document.getElementById('editorjs').style.display = 'none';
     initEditor(existingData);
   })();
