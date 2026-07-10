@@ -316,11 +316,14 @@
     }
     const { data: s } = await supabaseClient.from('sections').select('titre, module_id').eq('id', a.section_id).single();
     const { data: m } = s ? await supabaseClient.from('modules').select('titre, cours_id').eq('id', s.module_id).single() : { data: null };
+    const { data: c } = m ? await supabaseClient.from('cours').select('titre').eq('id', m.cours_id).single() : { data: null };
 
+    // Chaque lien renvoie vers l'explorateur de fichiers (admin-content.html) en lui
+    // passant assez de contexte pour qu'il déplie automatiquement le bon chemin.
     breadcrumbEl.innerHTML = `<a href="admin-dashboard.html">Administration</a> / ` +
-      `<a href="admin-content.html?cours_id=${m?.cours_id}">…</a> / ` +
-      `<a href="admin-content.html?module_id=${s?.module_id}">${escapeHtml(m?.titre || '…')}</a> / ` +
-      `<a href="admin-content.html?section_id=${a.section_id}">${escapeHtml(s?.titre || '…')}</a>`;
+      `<a href="admin-content.html?cours_id=${m?.cours_id}">${escapeHtml(c?.titre || '…')}</a> / ` +
+      `<a href="admin-content.html?cours_id=${m?.cours_id}&module_id=${s?.module_id}">${escapeHtml(m?.titre || '…')}</a> / ` +
+      `<a href="admin-content.html?cours_id=${m?.cours_id}&module_id=${s?.module_id}&section_id=${a.section_id}">${escapeHtml(s?.titre || '…')}</a>`;
 
     pageTitleEl.textContent = a.titre;
     typeTagEl.textContent = a.type || '—';
@@ -604,8 +607,13 @@
         return '<span class="inline-math"><span class="katex-error">' + expr + '</span></span>';
       }
     });
-    out = out.replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>');
-    out = out.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+    // Important : Editor.js n'autorise, au moment de la sauvegarde (editor.save()),
+    // que les balises produites par ses propres outils inline (Bold -> <b>, Italic -> <i>).
+    // Tout autre tag (comme <strong> ou <em>) n'est pas dans sa liste blanche et se fait
+    // donc silencieusement retirer à l'enregistrement : c'était la cause du "gras qui ne
+    // marche jamais" (visible pendant la frappe, disparu après sauvegarde/rechargement).
+    out = out.replace(/\*([^*\n]+)\*/g, '<b>$1</b>');
+    out = out.replace(/_([^_\n]+)_/g, '<i>$1</i>');
     return out;
   }
 
