@@ -198,6 +198,56 @@
   .inline-math { padding: 0 1px; }
   .inline-math .katex-error { color: var(--brick); }
 
+  /* ---- Blocs Image / Vidéo : toujours centrés ---- */
+  .imageblock-empty, .videoblock-empty {
+    border: 1.5px dashed rgba(42,38,32,0.22);
+    background: rgba(42,38,32,0.03);
+    border-radius: 10px;
+    padding: 24px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0;
+  }
+  .imageblock-empty-label, .videoblock-empty-label { font-size: 13.5px; color: var(--ink-soft); font-weight: 600; }
+  .imageblock-url-input, .videoblock-url-input {
+    width: 100%; max-width: 420px; border: none; border-bottom: 2px solid rgba(42,38,32,0.15);
+    background: transparent; font-family: 'Space Grotesk', sans-serif; font-size: 14px; color: var(--ink);
+    padding: 6px 2px 8px; text-align: center; outline: none; transition: border-color 0.2s ease;
+  }
+  .imageblock-url-input:focus, .videoblock-url-input:focus { border-bottom-color: var(--teal); }
+  .imageblock-insert-btn, .videoblock-insert-btn {
+    border: none; background: var(--teal); color: var(--paper); font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600; font-size: 12.5px; padding: 8px 18px; border-radius: 7px; cursor: pointer;
+  }
+  .imageblock-insert-btn:hover, .videoblock-insert-btn:hover { opacity: 0.9; }
+  .videoblock-error { font-size: 12px; color: var(--brick); min-height: 14px; }
+
+  .imageblock-figure, .videoblock-figure { text-align: center; margin: 6px 0; }
+  .imageblock-figure img {
+    max-width: 100%; max-height: 480px; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+  .videoblock-frame {
+    position: relative; width: 100%; max-width: 640px; margin: 0 auto; padding-top: 56.25%;
+    border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.15); background: #000;
+  }
+  .videoblock-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .imageblock-caption, .videoblock-caption {
+    display: block; width: 100%; max-width: 480px; margin: 10px auto 0; border: none;
+    border-bottom: 1.5px solid rgba(42,38,32,0.12); background: transparent; font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; font-style: italic; color: var(--ink-soft); text-align: center; padding: 4px 2px 6px; outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .imageblock-caption:focus, .videoblock-caption:focus { border-bottom-color: var(--teal); }
+  .imageblock-change-btn, .videoblock-change-btn {
+    display: inline-block; margin-top: 8px; border: 1px solid rgba(42,38,32,0.15); background: transparent;
+    color: var(--ink-soft); font-family: 'Space Grotesk', sans-serif; font-size: 11.5px; font-weight: 600;
+    padding: 5px 12px; border-radius: 999px; cursor: pointer; transition: all 0.15s ease;
+  }
+  .imageblock-change-btn:hover, .videoblock-change-btn:hover { background: var(--paper-dim); color: var(--ink); }
+
   .state-box { padding: 60px; text-align: center; color: var(--ink-soft); font-size: 14px; }
 
   .hint-box {
@@ -249,7 +299,7 @@
   </div>
 
   <div class="hint-box">
-    <strong>Astuce :</strong> tape "/" dans l'éditeur pour insérer un titre, une liste, une checklist, une citation, un encadré d'alerte, un bloc de code (thème sombre, choisis un langage pour la coloration ou "Brut"), une équation LaTeX, un tableau, un séparateur, une image (via URL) ou une vidéo (colle un lien YouTube/Vimeo). Sélectionne du texte pour le mettre en gras, italique, souligné ou surligné. Tu peux aussi taper directement <code>*gras*</code>, <code>_italique_</code>, <code>`code`</code> ou <code>$E=mc^2$</code> pour une formule en ligne (ça se convertit automatiquement dès que tu fermes la paire).
+    <strong>Astuce :</strong> tape "/" dans l'éditeur pour insérer un titre, une liste, une checklist, une citation, un encadré d'alerte, un bloc de code (thème sombre, choisis un langage pour la coloration ou "Brut"), une équation LaTeX, un tableau, un séparateur, une <strong>Image</strong> (colle une URL, elle s'affiche centrée avec une légende optionnelle) ou une <strong>Vidéo</strong> (colle un lien YouTube, elle s'intègre centrée en format responsive). Sélectionne du texte pour le mettre en gras, italique, souligné ou surligné. Tu peux aussi taper directement <code>*gras*</code>, <code>_italique_</code>, <code>`code`</code> ou <code>$E=mc^2$</code> pour une formule en ligne (ça se convertit automatiquement dès que tu fermes la paire).
   </div>
 
   <div class="editor-panel">
@@ -261,8 +311,6 @@
 <script type="module">
   import EditorJS from 'https://esm.sh/@editorjs/editorjs@2.30.7';
   import Header from 'https://esm.sh/@editorjs/header@2.8.8';
-  import SimpleImage from 'https://esm.sh/@editorjs/simple-image@1.6.0';
-  import Embed from 'https://esm.sh/@editorjs/embed@2.7.6';
   import List from 'https://esm.sh/@editorjs/list@2.0.6';
   import Quote from 'https://esm.sh/@editorjs/quote@2.7.2';
   import Delimiter from 'https://esm.sh/@editorjs/delimiter@1.4.2';
@@ -528,6 +576,181 @@
     }
   }
 
+  // ---- Outil "image" maison : URL + légende, toujours centrée ----
+  class ImageBlockTool {
+    static get toolbox() {
+      return {
+        title: 'Image',
+        icon: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'
+      };
+    }
+
+    constructor({ data }) {
+      this.data = { url: data.url || '', caption: data.caption || '' };
+    }
+
+    render() {
+      this.wrapper = document.createElement('div');
+      this.wrapper.classList.add('imageblock-tool');
+      this.renderContent();
+      return this.wrapper;
+    }
+
+    renderContent() {
+      this.wrapper.innerHTML = '';
+
+      if (!this.data.url) {
+        const box = document.createElement('div');
+        box.classList.add('imageblock-empty');
+        box.innerHTML = `
+          <div class="imageblock-empty-label">🖼️ Insère une image</div>
+          <input type="text" class="imageblock-url-input" placeholder="Colle l'URL de l'image (https://...)">
+          <button type="button" class="imageblock-insert-btn">Insérer</button>
+        `;
+        const input = box.querySelector('.imageblock-url-input');
+        const btn = box.querySelector('.imageblock-insert-btn');
+        const commit = () => {
+          const val = input.value.trim();
+          if (!val) return;
+          this.data.url = val;
+          this.renderContent();
+        };
+        btn.addEventListener('click', commit);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
+        this.wrapper.appendChild(box);
+        return;
+      }
+
+      const figure = document.createElement('div');
+      figure.classList.add('imageblock-figure');
+
+      const img = document.createElement('img');
+      img.src = this.data.url;
+      img.alt = this.data.caption || '';
+      figure.appendChild(img);
+
+      const caption = document.createElement('input');
+      caption.type = 'text';
+      caption.classList.add('imageblock-caption');
+      caption.placeholder = 'Légende (optionnel)';
+      caption.value = this.data.caption;
+      caption.addEventListener('input', () => { this.data.caption = caption.value; });
+      figure.appendChild(caption);
+
+      const changeBtn = document.createElement('button');
+      changeBtn.type = 'button';
+      changeBtn.classList.add('imageblock-change-btn');
+      changeBtn.textContent = "Changer l'image";
+      changeBtn.addEventListener('click', () => { this.data.url = ''; this.renderContent(); });
+      figure.appendChild(changeBtn);
+
+      this.wrapper.appendChild(figure);
+    }
+
+    save() {
+      return { url: this.data.url, caption: this.data.caption };
+    }
+
+    static get sanitize() {
+      return { url: {}, caption: {} };
+    }
+  }
+
+  // ---- Outil "vidéo" maison : lien YouTube -> intégration responsive centrée ----
+  class VideoBlockTool {
+    static get toolbox() {
+      return {
+        title: 'Vidéo',
+        icon: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 9l5-3v12l-5-3"/></svg>'
+      };
+    }
+
+    static extractYouTubeId(url) {
+      const match = url.match(/(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+      return match ? match[1] : null;
+    }
+
+    constructor({ data }) {
+      this.data = { url: data.url || '', videoId: data.videoId || '', caption: data.caption || '' };
+    }
+
+    render() {
+      this.wrapper = document.createElement('div');
+      this.wrapper.classList.add('videoblock-tool');
+      this.renderContent();
+      return this.wrapper;
+    }
+
+    renderContent() {
+      this.wrapper.innerHTML = '';
+
+      if (!this.data.videoId) {
+        const box = document.createElement('div');
+        box.classList.add('videoblock-empty');
+        box.innerHTML = `
+          <div class="videoblock-empty-label">🎬 Colle un lien YouTube</div>
+          <input type="text" class="videoblock-url-input" placeholder="https://www.youtube.com/watch?v=...">
+          <button type="button" class="videoblock-insert-btn">Insérer</button>
+          <div class="videoblock-error"></div>
+        `;
+        const input = box.querySelector('.videoblock-url-input');
+        const btn = box.querySelector('.videoblock-insert-btn');
+        const errorEl = box.querySelector('.videoblock-error');
+        const commit = () => {
+          const val = input.value.trim();
+          if (!val) return;
+          const id = VideoBlockTool.extractYouTubeId(val);
+          if (!id) { errorEl.textContent = 'Lien YouTube non reconnu.'; return; }
+          this.data.url = val;
+          this.data.videoId = id;
+          this.renderContent();
+        };
+        btn.addEventListener('click', commit);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); } });
+        this.wrapper.appendChild(box);
+        return;
+      }
+
+      const figure = document.createElement('div');
+      figure.classList.add('videoblock-figure');
+
+      const frameWrap = document.createElement('div');
+      frameWrap.classList.add('videoblock-frame');
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${this.data.videoId}`;
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      iframe.setAttribute('allowfullscreen', '');
+      frameWrap.appendChild(iframe);
+      figure.appendChild(frameWrap);
+
+      const caption = document.createElement('input');
+      caption.type = 'text';
+      caption.classList.add('videoblock-caption');
+      caption.placeholder = 'Légende (optionnel)';
+      caption.value = this.data.caption;
+      caption.addEventListener('input', () => { this.data.caption = caption.value; });
+      figure.appendChild(caption);
+
+      const changeBtn = document.createElement('button');
+      changeBtn.type = 'button';
+      changeBtn.classList.add('videoblock-change-btn');
+      changeBtn.textContent = 'Changer le lien';
+      changeBtn.addEventListener('click', () => { this.data.url = ''; this.data.videoId = ''; this.renderContent(); });
+      figure.appendChild(changeBtn);
+
+      this.wrapper.appendChild(figure);
+    }
+
+    save() {
+      return { url: this.data.url, videoId: this.data.videoId, caption: this.data.caption };
+    }
+
+    static get sanitize() {
+      return { url: {}, videoId: {}, caption: {} };
+    }
+  }
+
   // ---- Initialise Editor.js ----
   function initEditor(existingData) {
     editor = new EditorJS({
@@ -572,13 +795,10 @@
           config: { rows: 2, cols: 3 }
         },
         image: {
-          class: SimpleImage
+          class: ImageBlockTool
         },
-        embed: {
-          class: Embed,
-          config: {
-            services: { youtube: true, vimeo: true }
-          }
+        video: {
+          class: VideoBlockTool
         },
         marker: Marker,
         underline: Underline
