@@ -232,6 +232,95 @@
   .exoblock-preview .katex-error { color: var(--brick); font-size: 12.5px; font-family: 'Space Grotesk', sans-serif; }
   .exoblock-hint { font-size: 11.5px; color: var(--ink-soft); margin-top: 14px; line-height: 1.5; }
 
+  /* ---- Liste de questions (calcul et QCM) dans le module d'exercice ---- */
+  .exoblock-questions { display: flex; flex-direction: column; gap: 14px; }
+  .exoblock-question-card {
+    border: 1px solid rgba(42,38,32,0.12); background: rgba(255,255,255,0.5);
+    border-radius: 8px; padding: 14px 16px;
+  }
+  .exoblock-question-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .exoblock-question-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+  .exoblock-question-del {
+    border: none; background: transparent; color: var(--brick); font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 600; cursor: pointer; padding: 2px 4px;
+  }
+  .exoblock-question-del:hover { text-decoration: underline; }
+  .exoblock-add-question {
+    align-self: flex-start; border: 1.5px dashed rgba(42,38,32,0.25); background: transparent; color: var(--denim);
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12.5px; padding: 8px 16px;
+    border-radius: 8px; cursor: pointer; margin-top: 14px;
+  }
+  .exoblock-add-question:hover { border-color: var(--denim); background: rgba(92,111,163,0.06); }
+
+  .exoblock-textarea-text { font-family: 'Space Grotesk', sans-serif; font-size: 14px; }
+
+  .exoblock-choices { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .exoblock-choice-row { display: flex; align-items: center; gap: 8px; }
+  .exoblock-choice-check { flex-shrink: 0; width: 16px; height: 16px; accent-color: var(--teal); cursor: pointer; }
+  .exoblock-choice-text {
+    flex: 1; border: none; border-bottom: 1.5px solid rgba(42,38,32,0.15); background: transparent;
+    font-family: 'Space Grotesk', sans-serif; font-size: 13.5px; color: var(--ink); padding: 5px 2px; outline: none;
+  }
+  .exoblock-choice-text:focus { border-bottom-color: var(--denim); }
+  .exoblock-choice-del {
+    flex-shrink: 0; border: none; background: transparent; color: var(--ink-soft); font-size: 13px;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+  }
+  .exoblock-choice-del:hover { color: var(--brick); background: rgba(181,88,60,0.1); }
+  .exoblock-add-choice {
+    border: none; background: transparent; color: var(--denim); font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600; font-size: 12px; cursor: pointer; margin-top: 10px; padding: 2px 0;
+  }
+  .exoblock-add-choice:hover { text-decoration: underline; }
+
+  .exoblock-syntax-hint { font-size: 11px; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; }
+  .exoblock-syntax-warn { color: var(--brick); }
+  .exoblock-trous-preview {
+    margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(42,38,32,0.04);
+    font-size: 13.5px; line-height: 1.7; color: var(--ink);
+  }
+  .exoblock-trous-blank {
+    display: inline-block; background: rgba(217,164,65,0.22); color: var(--ink); font-weight: 600;
+    border-radius: 5px; padding: 0 6px; margin: 0 1px;
+  }
+
+  /* ---- Vrai / Faux ---- */
+  .exoblock-vf-toggle { display: flex; gap: 10px; margin-top: 8px; }
+  .exoblock-vf-btn {
+    flex: 1; padding: 10px 14px; border: 1.5px solid rgba(42,38,32,0.18); border-radius: 8px;
+    background: rgba(255,255,255,0.5); font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+    font-size: 13.5px; color: var(--ink-soft); cursor: pointer; transition: all 0.15s ease;
+  }
+  .exoblock-vf-btn:hover { border-color: var(--denim); }
+  .exoblock-vf-btn.active { border-color: var(--teal); background: rgba(79,143,130,0.14); color: var(--teal); }
+
+  /* ---- Association (paires) ---- */
+  .exoblock-pairs { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .exoblock-pair-row { display: flex; align-items: center; gap: 8px; }
+  .exoblock-pair-input {
+    flex: 1; min-width: 0; border: none; border-bottom: 1.5px solid rgba(42,38,32,0.15); background: transparent;
+    font-family: 'Space Grotesk', sans-serif; font-size: 13.5px; color: var(--ink); padding: 5px 2px; outline: none;
+  }
+  .exoblock-pair-input:focus { border-bottom-color: var(--denim); }
+  .exoblock-pair-arrow { flex-shrink: 0; color: var(--ink-soft); font-size: 14px; }
+
+  /* ---- Remise dans l'ordre ---- */
+  .exoblock-ordre-items { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .exoblock-ordre-row { display: flex; align-items: center; gap: 8px; }
+  .exoblock-ordre-num { flex-shrink: 0; width: 18px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); }
+
+  /* ---- Classement par catégories ---- */
+  .exoblock-categories { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .exoblock-category-row { display: flex; align-items: center; gap: 8px; }
+  .exoblock-cat-items { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .exoblock-cat-item-row { display: flex; align-items: center; gap: 8px; }
+  .exoblock-cat-select {
+    flex-shrink: 0; border: 1.5px solid rgba(42,38,32,0.18); border-radius: 6px; background: #fff;
+    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; color: var(--ink); padding: 5px 8px; outline: none;
+    max-width: 150px;
+  }
+  .exoblock-cat-select:focus { border-color: var(--denim); }
+
   /* ---- Modale de choix du type d'exercice ---- */
   .exo-modal-overlay {
     position: fixed; inset: 0; background: rgba(34,40,42,0.72); display: flex;
@@ -411,6 +500,25 @@
   });
 
   function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+
+  // ---- Découpe le texte d'un exercice "texte à trous" en segments texte /
+  // trou. Un trou s'écrit [[réponse]], ou [[réponse1|réponse2]] pour accepter
+  // plusieurs réponses. Partagé par l'aperçu de l'éditeur et le rendu élève.
+  function parseTrousSegments(texte) {
+    const segments = [];
+    const re = /\[\[([^\]]*)\]\]/g;
+    const str = texte || '';
+    let lastIndex = 0;
+    let m;
+    while ((m = re.exec(str)) !== null) {
+      if (m.index > lastIndex) segments.push({ type: 'text', value: str.slice(lastIndex, m.index) });
+      const answers = m[1].split('|').map(s => s.trim()).filter(Boolean);
+      segments.push({ type: 'blank', answers });
+      lastIndex = re.lastIndex;
+    }
+    if (lastIndex < str.length) segments.push({ type: 'text', value: str.slice(lastIndex) });
+    return segments;
+  }
 
   const params = new URLSearchParams(window.location.search);
   const activiteId = params.get('activite_id');
@@ -895,9 +1003,10 @@
   }
 
   // ---- Outil "Module d'exercice" : un seul par activité de type exercice.
-  // Une modale fait choisir un type (pour l'instant seul "Calcul mathématique"
-  // est implémenté, les autres apparaissent en gris "Bientôt" pour montrer que
-  // c'est extensible), puis affiche les réglages propres à ce type.
+  // Une modale fait choisir un type ("Calcul mathématique" et "QCM" sont
+  // implémentés, les autres apparaissent en gris "Bientôt" pour montrer que
+  // c'est extensible), puis affiche les réglages propres à ce type. Chaque
+  // type peut contenir plusieurs questions à la suite (this.data.questions).
   class ExoModuleTool {
     static get toolbox() {
       return {
@@ -909,17 +1018,53 @@
     static get exoTypes() {
       return [
         { value: 'calcul', icon: '🧮', name: 'Calcul mathématique', desc: "L'élève retrouve, étape par étape, un résultat numérique attendu.", soon: false },
-        { value: 'qcm', icon: '☑️', name: 'QCM', desc: 'Question à choix multiples.', soon: true },
-        { value: 'trous', icon: '✏️', name: 'Texte à trous', desc: 'Complète les mots ou valeurs manquantes.', soon: true }
+        { value: 'qcm', icon: '☑️', name: 'QCM', desc: 'Question à choix multiples.', soon: false },
+        { value: 'trous', icon: '✏️', name: 'Texte à trous', desc: 'Complète les mots ou valeurs manquantes.', soon: false },
+        { value: 'vraifaux', icon: '✅', name: 'Vrai ou faux', desc: "L'élève indique si une affirmation est vraie ou fausse.", soon: false },
+        { value: 'association', icon: '🔗', name: 'Association', desc: 'Relie chaque élément de gauche à sa correspondance.', soon: false },
+        { value: 'ordre', icon: '🔢', name: "Remise dans l'ordre", desc: 'Range des éléments dans le bon ordre.', soon: false },
+        { value: 'categorie', icon: '🗂️', name: 'Classement par catégories', desc: 'Range chaque élément dans la bonne catégorie.', soon: false }
       ];
+    }
+
+    // Question par défaut pour un type donné, utilisée à la création du bloc
+    // et à chaque ajout de question.
+    defaultQuestion(type) {
+      if (type === 'qcm') {
+        return { enonce: '', choices: [ { text: '', correct: false }, { text: '', correct: false } ] };
+      }
+      if (type === 'trous') {
+        return { texte: '' };
+      }
+      if (type === 'vraifaux') {
+        return { enonce: '', reponse: true };
+      }
+      if (type === 'association') {
+        return { paires: [ { gauche: '', droite: '' }, { gauche: '', droite: '' } ] };
+      }
+      if (type === 'ordre') {
+        return { enonce: '', items: [ '', '' ] };
+      }
+      if (type === 'categorie') {
+        return {
+          enonce: '',
+          categories: [ '', '' ],
+          items: [ { texte: '', categorie: 0 }, { texte: '', categorie: 0 } ]
+        };
+      }
+      return { entree: '', sortie: '' };
     }
 
     constructor({ data }) {
       this.data = {
         exoType: data.exoType || '',
-        entree: data.entree || '',
-        sortie: data.sortie || ''
+        questions: Array.isArray(data.questions) ? data.questions : []
       };
+      // Migration depuis l'ancien format à question unique à plat
+      // ({ exoType: 'calcul', entree, sortie }) vers la liste this.data.questions.
+      if (!this.data.questions.length && this.data.exoType === 'calcul' && (data.entree || data.sortie)) {
+        this.data.questions = [{ entree: data.entree || '', sortie: data.sortie || '' }];
+      }
     }
 
     render() {
@@ -962,7 +1107,9 @@
       header.appendChild(changeBtn);
       this.wrapper.appendChild(header);
 
-      if (this.data.exoType === 'calcul') this.renderCalculConfig();
+      if (typeInfo) {
+        this.renderQuestionsList(this.data.exoType);
+      }
     }
 
     openTypeModal() {
@@ -991,7 +1138,12 @@
         `;
         if (!t.soon) {
           card.addEventListener('click', () => {
-            this.data.exoType = t.value;
+            if (this.data.exoType !== t.value) {
+              // Changer de type d'exercice repart d'une question par défaut,
+              // les anciennes questions n'ayant pas le même format.
+              this.data.exoType = t.value;
+              this.data.questions = [this.defaultQuestion(t.value)];
+            }
             if (overlay.parentNode) document.body.removeChild(overlay);
             this.renderContent();
           });
@@ -1014,24 +1166,590 @@
       document.body.appendChild(overlay);
     }
 
-    renderCalculConfig() {
-      const entreeField = this.buildMathField(
-        "Expression d'entrée",
-        this.data.entree,
-        (val) => { this.data.entree = val; }
-      );
-      const sortieField = this.buildMathField(
-        'Résultat de sortie attendu',
-        this.data.sortie,
-        (val) => { this.data.sortie = val; }
-      );
-      this.wrapper.appendChild(entreeField);
-      this.wrapper.appendChild(sortieField);
+    // Affiche la liste des questions du module (une ou plusieurs), quel que
+    // soit le type, avec un bouton pour en ajouter et un pour en supprimer
+    // sur chaque question (dès qu'il y en a plus d'une).
+    renderQuestionsList(type) {
+      if (!Array.isArray(this.data.questions) || !this.data.questions.length) {
+        this.data.questions = [this.defaultQuestion(type)];
+      }
+
+      const list = document.createElement('div');
+      list.classList.add('exoblock-questions');
+
+      this.data.questions.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.classList.add('exoblock-question-card');
+
+        const qHeader = document.createElement('div');
+        qHeader.classList.add('exoblock-question-header');
+        const qLabel = document.createElement('span');
+        qLabel.classList.add('exoblock-question-label');
+        qLabel.textContent = 'Question ' + (idx + 1);
+        qHeader.appendChild(qLabel);
+
+        if (this.data.questions.length > 1) {
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.classList.add('exoblock-question-del');
+          delBtn.textContent = 'Supprimer';
+          delBtn.addEventListener('click', () => {
+            this.data.questions.splice(idx, 1);
+            this.renderContent();
+          });
+          qHeader.appendChild(delBtn);
+        }
+        card.appendChild(qHeader);
+
+        if (type === 'calcul') this.renderCalculQuestion(card, q);
+        else if (type === 'qcm') this.renderQcmQuestion(card, q);
+        else if (type === 'trous') this.renderTrousQuestion(card, q);
+        else if (type === 'vraifaux') this.renderVraiFauxQuestion(card, q);
+        else if (type === 'association') this.renderAssociationQuestion(card, q);
+        else if (type === 'ordre') this.renderOrdreQuestion(card, q);
+        else if (type === 'categorie') this.renderCategorieQuestion(card, q);
+
+        list.appendChild(card);
+      });
+
+      this.wrapper.appendChild(list);
+
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.classList.add('exoblock-add-question');
+      addBtn.textContent = '+ Ajouter une question';
+      addBtn.addEventListener('click', () => {
+        this.data.questions.push(this.defaultQuestion(type));
+        this.renderContent();
+      });
+      this.wrapper.appendChild(addBtn);
 
       const hint = document.createElement('div');
       hint.classList.add('exoblock-hint');
-      hint.textContent = "Côté élève : l'expression d'entrée s'affiche, et l'élève tape ses étapes de calcul ligne par ligne (Entrée pour passer à la suivante). Dès que sa dernière ligne remplie est numériquement égale au résultat de sortie, l'exercice est validé.";
+      const hints = {
+        qcm: "Côté élève : les questions s'affichent l'une après l'autre. Coche une seule bonne réponse pour une question à choix unique, ou plusieurs cases pour accepter plusieurs bonnes réponses. L'exercice est validé quand toutes les questions le sont.",
+        trous: "Côté élève : le texte s'affiche avec un champ à la place de chaque trou. Une réponse est acceptée si elle correspond à l'une des valeurs proposées (accents et majuscules/minuscules ignorés). L'exercice est validé quand toutes les questions le sont.",
+        vraifaux: "Côté élève : l'affirmation s'affiche avec deux boutons Vrai / Faux. L'exercice est validé quand toutes les affirmations ont été correctement identifiées.",
+        association: "Côté élève : chaque élément de gauche est associé à une réponse choisie dans une liste déroulante mélangée. L'exercice est validé quand toutes les paires sont correctes.",
+        ordre: "Côté élève : les éléments apparaissent dans un ordre mélangé, à remettre dans l'ordre avec les flèches ▲▼. L'ordre correct est celui dans lequel tu as saisi les éléments ici.",
+        categorie: "Côté élève : chaque élément est à ranger dans la bonne catégorie via une liste déroulante. L'exercice est validé quand tous les éléments sont bien classés."
+      };
+      hint.textContent = hints[type] || "Côté élève : chaque question affiche son expression d'entrée, et l'élève tape ses étapes de calcul ligne par ligne (Entrée pour passer à la suivante). Dès que sa dernière ligne remplie est numériquement égale au résultat attendu, la question est validée. L'exercice est validé quand toutes les questions le sont.";
       this.wrapper.appendChild(hint);
+    }
+
+    renderCalculQuestion(card, q) {
+      const entreeField = this.buildMathField(
+        "Expression d'entrée",
+        q.entree || '',
+        (val) => { q.entree = val; }
+      );
+      const sortieField = this.buildMathField(
+        'Résultat de sortie attendu',
+        q.sortie || '',
+        (val) => { q.sortie = val; }
+      );
+      card.appendChild(entreeField);
+      card.appendChild(sortieField);
+    }
+
+    renderQcmQuestion(card, q) {
+      if (!Array.isArray(q.choices) || q.choices.length < 2) {
+        q.choices = (Array.isArray(q.choices) && q.choices.length)
+          ? q.choices
+          : [ { text: '', correct: false }, { text: '', correct: false } ];
+      }
+
+      const enonceField = document.createElement('div');
+      enonceField.classList.add('exoblock-field');
+      const enonceLabel = document.createElement('div');
+      enonceLabel.classList.add('exoblock-field-label');
+      enonceLabel.textContent = 'Énoncé de la question';
+      enonceField.appendChild(enonceLabel);
+
+      const enonceTextarea = document.createElement('textarea');
+      enonceTextarea.classList.add('exoblock-textarea', 'exoblock-textarea-text');
+      enonceTextarea.value = q.enonce || '';
+      enonceTextarea.placeholder = 'Ex : Quelle est la capitale de la France ?';
+      enonceTextarea.rows = 1;
+      enonceTextarea.addEventListener('input', () => {
+        q.enonce = enonceTextarea.value;
+        enonceTextarea.style.height = 'auto';
+        enonceTextarea.style.height = enonceTextarea.scrollHeight + 'px';
+      });
+      setTimeout(() => { enonceTextarea.style.height = enonceTextarea.scrollHeight + 'px'; }, 0);
+      enonceField.appendChild(enonceTextarea);
+      card.appendChild(enonceField);
+
+      const choicesLabel = document.createElement('div');
+      choicesLabel.classList.add('exoblock-field-label');
+      choicesLabel.textContent = 'Réponses (coche la ou les bonnes)';
+      card.appendChild(choicesLabel);
+
+      const choicesWrap = document.createElement('div');
+      choicesWrap.classList.add('exoblock-choices');
+
+      q.choices.forEach((choice, cIdx) => {
+        const row = document.createElement('div');
+        row.classList.add('exoblock-choice-row');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.classList.add('exoblock-choice-check');
+        checkbox.checked = !!choice.correct;
+        checkbox.title = 'Bonne réponse';
+        checkbox.addEventListener('change', () => { choice.correct = checkbox.checked; });
+        row.appendChild(checkbox);
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.classList.add('exoblock-choice-text');
+        input.value = choice.text || '';
+        input.placeholder = 'Réponse ' + (cIdx + 1);
+        input.addEventListener('input', () => { choice.text = input.value; });
+        row.appendChild(input);
+
+        if (q.choices.length > 2) {
+          const delChoiceBtn = document.createElement('button');
+          delChoiceBtn.type = 'button';
+          delChoiceBtn.classList.add('exoblock-choice-del');
+          delChoiceBtn.textContent = '✕';
+          delChoiceBtn.addEventListener('click', () => {
+            q.choices.splice(cIdx, 1);
+            this.renderContent();
+          });
+          row.appendChild(delChoiceBtn);
+        }
+
+        choicesWrap.appendChild(row);
+      });
+
+      card.appendChild(choicesWrap);
+
+      if (q.choices.length < 6) {
+        const addChoiceBtn = document.createElement('button');
+        addChoiceBtn.type = 'button';
+        addChoiceBtn.classList.add('exoblock-add-choice');
+        addChoiceBtn.textContent = '+ Ajouter une réponse';
+        addChoiceBtn.addEventListener('click', () => {
+          q.choices.push({ text: '', correct: false });
+          this.renderContent();
+        });
+        card.appendChild(addChoiceBtn);
+      }
+    }
+
+    renderTrousQuestion(card, q) {
+      const field = document.createElement('div');
+      field.classList.add('exoblock-field');
+
+      const label = document.createElement('div');
+      label.classList.add('exoblock-field-label');
+      label.textContent = 'Texte avec trous';
+      field.appendChild(label);
+
+      const textarea = document.createElement('textarea');
+      textarea.classList.add('exoblock-textarea', 'exoblock-textarea-text');
+      textarea.value = q.texte || '';
+      textarea.placeholder = 'Ex : La capitale de la France est [[Paris]].';
+      textarea.rows = 2;
+      field.appendChild(textarea);
+
+      const syntaxHint = document.createElement('div');
+      syntaxHint.classList.add('exoblock-syntax-hint');
+      syntaxHint.textContent = 'Entoure chaque réponse attendue de doubles crochets : [[réponse]]. Plusieurs réponses acceptées pour un même trou : [[réponse1|réponse2]].';
+      field.appendChild(syntaxHint);
+
+      const preview = document.createElement('div');
+      preview.classList.add('exoblock-trous-preview');
+      field.appendChild(preview);
+
+      const renderPreview = () => {
+        preview.innerHTML = '';
+        const segments = parseTrousSegments(textarea.value);
+        if (!textarea.value.trim()) return;
+        let blankCount = 0;
+        segments.forEach(seg => {
+          if (seg.type === 'text') {
+            preview.appendChild(document.createTextNode(seg.value));
+          } else {
+            blankCount++;
+            const span = document.createElement('span');
+            span.classList.add('exoblock-trous-blank');
+            span.textContent = seg.answers.length ? seg.answers.join(' / ') : '?';
+            preview.appendChild(span);
+          }
+        });
+        if (!blankCount) {
+          const warn = document.createElement('div');
+          warn.classList.add('exoblock-syntax-hint', 'exoblock-syntax-warn');
+          warn.textContent = "Aucun trou détecté : utilise la syntaxe [[réponse]] pour en créer un.";
+          preview.appendChild(warn);
+        }
+      };
+
+      textarea.addEventListener('input', () => {
+        q.texte = textarea.value;
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+        renderPreview();
+      });
+
+      renderPreview();
+      setTimeout(() => { textarea.style.height = textarea.scrollHeight + 'px'; }, 0);
+
+      card.appendChild(field);
+    }
+
+    renderVraiFauxQuestion(card, q) {
+      const field = document.createElement('div');
+      field.classList.add('exoblock-field');
+      const label = document.createElement('div');
+      label.classList.add('exoblock-field-label');
+      label.textContent = 'Affirmation';
+      field.appendChild(label);
+
+      const textarea = document.createElement('textarea');
+      textarea.classList.add('exoblock-textarea', 'exoblock-textarea-text');
+      textarea.value = q.enonce || '';
+      textarea.placeholder = 'Ex : La Terre est plate.';
+      textarea.rows = 1;
+      textarea.addEventListener('input', () => {
+        q.enonce = textarea.value;
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      });
+      setTimeout(() => { textarea.style.height = textarea.scrollHeight + 'px'; }, 0);
+      field.appendChild(textarea);
+      card.appendChild(field);
+
+      const toggleLabel = document.createElement('div');
+      toggleLabel.classList.add('exoblock-field-label');
+      toggleLabel.textContent = 'Bonne réponse';
+      card.appendChild(toggleLabel);
+
+      const toggleWrap = document.createElement('div');
+      toggleWrap.classList.add('exoblock-vf-toggle');
+
+      const trueBtn = document.createElement('button');
+      trueBtn.type = 'button';
+      trueBtn.classList.add('exoblock-vf-btn');
+      trueBtn.textContent = 'Vrai';
+      const falseBtn = document.createElement('button');
+      falseBtn.type = 'button';
+      falseBtn.classList.add('exoblock-vf-btn');
+      falseBtn.textContent = 'Faux';
+
+      const updateActive = () => {
+        trueBtn.classList.toggle('active', q.reponse === true);
+        falseBtn.classList.toggle('active', q.reponse === false);
+      };
+      trueBtn.addEventListener('click', () => { q.reponse = true; updateActive(); });
+      falseBtn.addEventListener('click', () => { q.reponse = false; updateActive(); });
+      updateActive();
+
+      toggleWrap.appendChild(trueBtn);
+      toggleWrap.appendChild(falseBtn);
+      card.appendChild(toggleWrap);
+    }
+
+    renderAssociationQuestion(card, q) {
+      if (!Array.isArray(q.paires) || q.paires.length < 2) {
+        q.paires = (Array.isArray(q.paires) && q.paires.length) ? q.paires : [ { gauche: '', droite: '' }, { gauche: '', droite: '' } ];
+      }
+
+      const label = document.createElement('div');
+      label.classList.add('exoblock-field-label');
+      label.textContent = 'Paires à associer';
+      card.appendChild(label);
+
+      const pairsWrap = document.createElement('div');
+      pairsWrap.classList.add('exoblock-pairs');
+
+      q.paires.forEach((paire, pIdx) => {
+        const row = document.createElement('div');
+        row.classList.add('exoblock-pair-row');
+
+        const leftInput = document.createElement('input');
+        leftInput.type = 'text';
+        leftInput.classList.add('exoblock-pair-input');
+        leftInput.value = paire.gauche || '';
+        leftInput.placeholder = 'Élément';
+        leftInput.addEventListener('input', () => { paire.gauche = leftInput.value; });
+        row.appendChild(leftInput);
+
+        const arrow = document.createElement('span');
+        arrow.classList.add('exoblock-pair-arrow');
+        arrow.textContent = '↔';
+        row.appendChild(arrow);
+
+        const rightInput = document.createElement('input');
+        rightInput.type = 'text';
+        rightInput.classList.add('exoblock-pair-input');
+        rightInput.value = paire.droite || '';
+        rightInput.placeholder = 'Correspondance';
+        rightInput.addEventListener('input', () => { paire.droite = rightInput.value; });
+        row.appendChild(rightInput);
+
+        if (q.paires.length > 2) {
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.classList.add('exoblock-choice-del');
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('click', () => {
+            q.paires.splice(pIdx, 1);
+            this.renderContent();
+          });
+          row.appendChild(delBtn);
+        }
+
+        pairsWrap.appendChild(row);
+      });
+
+      card.appendChild(pairsWrap);
+
+      if (q.paires.length < 8) {
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.classList.add('exoblock-add-choice');
+        addBtn.textContent = '+ Ajouter une paire';
+        addBtn.addEventListener('click', () => {
+          q.paires.push({ gauche: '', droite: '' });
+          this.renderContent();
+        });
+        card.appendChild(addBtn);
+      }
+    }
+
+    renderOrdreQuestion(card, q) {
+      const field = document.createElement('div');
+      field.classList.add('exoblock-field');
+      const label = document.createElement('div');
+      label.classList.add('exoblock-field-label');
+      label.textContent = 'Consigne (optionnelle)';
+      field.appendChild(label);
+
+      const textarea = document.createElement('textarea');
+      textarea.classList.add('exoblock-textarea', 'exoblock-textarea-text');
+      textarea.value = q.enonce || '';
+      textarea.placeholder = 'Ex : Remets les étapes de résolution dans l’ordre.';
+      textarea.rows = 1;
+      textarea.addEventListener('input', () => {
+        q.enonce = textarea.value;
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      });
+      setTimeout(() => { textarea.style.height = textarea.scrollHeight + 'px'; }, 0);
+      field.appendChild(textarea);
+      card.appendChild(field);
+
+      if (!Array.isArray(q.items) || q.items.length < 2) {
+        q.items = (Array.isArray(q.items) && q.items.length) ? q.items : [ '', '' ];
+      }
+
+      const itemsLabel = document.createElement('div');
+      itemsLabel.classList.add('exoblock-field-label');
+      itemsLabel.textContent = 'Éléments, dans le bon ordre';
+      card.appendChild(itemsLabel);
+
+      const itemsWrap = document.createElement('div');
+      itemsWrap.classList.add('exoblock-ordre-items');
+
+      q.items.forEach((item, iIdx) => {
+        const row = document.createElement('div');
+        row.classList.add('exoblock-ordre-row');
+
+        const num = document.createElement('span');
+        num.classList.add('exoblock-ordre-num');
+        num.textContent = (iIdx + 1) + '.';
+        row.appendChild(num);
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.classList.add('exoblock-pair-input');
+        input.value = item || '';
+        input.placeholder = 'Étape ' + (iIdx + 1);
+        input.addEventListener('input', () => { q.items[iIdx] = input.value; });
+        row.appendChild(input);
+
+        if (q.items.length > 2) {
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.classList.add('exoblock-choice-del');
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('click', () => {
+            q.items.splice(iIdx, 1);
+            this.renderContent();
+          });
+          row.appendChild(delBtn);
+        }
+
+        itemsWrap.appendChild(row);
+      });
+
+      card.appendChild(itemsWrap);
+
+      if (q.items.length < 8) {
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.classList.add('exoblock-add-choice');
+        addBtn.textContent = '+ Ajouter un élément';
+        addBtn.addEventListener('click', () => {
+          q.items.push('');
+          this.renderContent();
+        });
+        card.appendChild(addBtn);
+      }
+    }
+
+    renderCategorieQuestion(card, q) {
+      const field = document.createElement('div');
+      field.classList.add('exoblock-field');
+      const label = document.createElement('div');
+      label.classList.add('exoblock-field-label');
+      label.textContent = 'Consigne (optionnelle)';
+      field.appendChild(label);
+
+      const textarea = document.createElement('textarea');
+      textarea.classList.add('exoblock-textarea', 'exoblock-textarea-text');
+      textarea.value = q.enonce || '';
+      textarea.placeholder = 'Ex : Classe chaque nombre selon sa parité.';
+      textarea.rows = 1;
+      textarea.addEventListener('input', () => {
+        q.enonce = textarea.value;
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      });
+      setTimeout(() => { textarea.style.height = textarea.scrollHeight + 'px'; }, 0);
+      field.appendChild(textarea);
+      card.appendChild(field);
+
+      if (!Array.isArray(q.categories) || q.categories.length < 2) {
+        q.categories = (Array.isArray(q.categories) && q.categories.length) ? q.categories : [ '', '' ];
+      }
+      if (!Array.isArray(q.items) || q.items.length < 2) {
+        q.items = (Array.isArray(q.items) && q.items.length) ? q.items : [ { texte: '', categorie: 0 }, { texte: '', categorie: 0 } ];
+      }
+      // Les éléments pointent vers un index de catégorie : on s'assure qu'aucun
+      // ne pointe au-delà de la liste actuelle (ex. après suppression d'une catégorie).
+      q.items.forEach(it => {
+        if (typeof it.categorie !== 'number' || it.categorie >= q.categories.length || it.categorie < 0) it.categorie = 0;
+      });
+
+      const catLabel = document.createElement('div');
+      catLabel.classList.add('exoblock-field-label');
+      catLabel.textContent = 'Catégories';
+      card.appendChild(catLabel);
+
+      const catWrap = document.createElement('div');
+      catWrap.classList.add('exoblock-categories');
+
+      q.categories.forEach((cat, cIdx) => {
+        const row = document.createElement('div');
+        row.classList.add('exoblock-category-row');
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.classList.add('exoblock-pair-input');
+        input.value = cat || '';
+        input.placeholder = 'Catégorie ' + (cIdx + 1);
+        input.addEventListener('input', () => { q.categories[cIdx] = input.value; });
+        // Rafraîchit les listes déroulantes des éléments à la sortie du champ,
+        // pour qu'elles affichent le nom à jour, sans perdre le focus à la frappe.
+        input.addEventListener('blur', () => this.renderContent());
+        row.appendChild(input);
+
+        if (q.categories.length > 2) {
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.classList.add('exoblock-choice-del');
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('click', () => {
+            q.categories.splice(cIdx, 1);
+            q.items.forEach(it => { if (it.categorie >= q.categories.length) it.categorie = 0; });
+            this.renderContent();
+          });
+          row.appendChild(delBtn);
+        }
+
+        catWrap.appendChild(row);
+      });
+
+      card.appendChild(catWrap);
+
+      if (q.categories.length < 6) {
+        const addCatBtn = document.createElement('button');
+        addCatBtn.type = 'button';
+        addCatBtn.classList.add('exoblock-add-choice');
+        addCatBtn.textContent = '+ Ajouter une catégorie';
+        addCatBtn.addEventListener('click', () => {
+          q.categories.push('');
+          this.renderContent();
+        });
+        card.appendChild(addCatBtn);
+      }
+
+      const itemsLabel = document.createElement('div');
+      itemsLabel.classList.add('exoblock-field-label');
+      itemsLabel.style.marginTop = '14px';
+      itemsLabel.textContent = 'Éléments à classer';
+      card.appendChild(itemsLabel);
+
+      const itemsWrap = document.createElement('div');
+      itemsWrap.classList.add('exoblock-cat-items');
+
+      q.items.forEach((item, iIdx) => {
+        const row = document.createElement('div');
+        row.classList.add('exoblock-cat-item-row');
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.classList.add('exoblock-pair-input');
+        input.value = item.texte || '';
+        input.placeholder = 'Élément ' + (iIdx + 1);
+        input.addEventListener('input', () => { item.texte = input.value; });
+        row.appendChild(input);
+
+        const select = document.createElement('select');
+        select.classList.add('exoblock-cat-select');
+        q.categories.forEach((cat, cIdx) => {
+          const opt = document.createElement('option');
+          opt.value = String(cIdx);
+          opt.textContent = cat && cat.trim() ? cat : 'Catégorie ' + (cIdx + 1);
+          select.appendChild(opt);
+        });
+        select.value = String(item.categorie || 0);
+        select.addEventListener('change', () => { item.categorie = parseInt(select.value, 10) || 0; });
+        row.appendChild(select);
+
+        if (q.items.length > 2) {
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.classList.add('exoblock-choice-del');
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('click', () => {
+            q.items.splice(iIdx, 1);
+            this.renderContent();
+          });
+          row.appendChild(delBtn);
+        }
+
+        itemsWrap.appendChild(row);
+      });
+
+      card.appendChild(itemsWrap);
+
+      if (q.items.length < 12) {
+        const addItemBtn = document.createElement('button');
+        addItemBtn.type = 'button';
+        addItemBtn.classList.add('exoblock-add-choice');
+        addItemBtn.textContent = '+ Ajouter un élément';
+        addItemBtn.addEventListener('click', () => {
+          q.items.push({ texte: '', categorie: 0 });
+          this.renderContent();
+        });
+        card.appendChild(addItemBtn);
+      }
     }
 
     // Champ texte + aperçu KaTeX en direct, sur le même principe que MathBlockTool.
@@ -1078,11 +1796,11 @@
     }
 
     save() {
-      return { exoType: this.data.exoType, entree: this.data.entree, sortie: this.data.sortie };
+      return { exoType: this.data.exoType, questions: this.data.questions };
     }
 
     static get sanitize() {
-      return { exoType: {}, entree: {}, sortie: {} };
+      return { exoType: {}, questions: {} };
     }
   }
 

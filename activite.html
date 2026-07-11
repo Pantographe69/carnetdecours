@@ -136,6 +136,80 @@
     background: rgba(79,143,130,0.12); padding: 8px 16px; border-radius: 999px; font-size: 13.5px;
   }
 
+  /* ---- Module d'exercice à plusieurs questions ---- */
+  .exo-question-block { margin-bottom: 26px; }
+  .exo-question-block:last-child { margin-bottom: 0; }
+  .exo-question-block + .exo-question-block { border-top: 1px dashed rgba(42,38,32,0.18); padding-top: 22px; }
+  .exo-question-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 10px; }
+
+  /* ---- Module d'exercice : QCM ---- */
+  .exo-qcm-enonce { font-size: 16.5px; font-weight: 600; line-height: 1.5; margin-bottom: 16px; }
+  .exo-qcm-choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .exo-qcm-option {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px; font-size: 14.5px;
+    border: 1.5px solid rgba(42,38,32,0.16); border-radius: 9px; background: rgba(255,255,255,0.5);
+    cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .exo-qcm-option:hover { border-color: var(--denim); background: #fff; }
+  .exo-qcm-option input { width: 17px; height: 17px; flex-shrink: 0; accent-color: var(--teal); cursor: pointer; }
+
+  /* ---- Module d'exercice : texte à trous ---- */
+  .exo-trous-text { font-size: 16px; line-height: 2.1; margin-bottom: 18px; }
+  .exo-trous-input {
+    display: inline-block; border: none; border-bottom: 2px solid var(--denim); background: rgba(92,111,163,0.08);
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px; color: var(--ink); text-align: center;
+    padding: 2px 6px; margin: 0 3px; border-radius: 4px 4px 0 0; outline: none; transition: border-color 0.2s ease;
+  }
+  .exo-trous-input:focus { border-bottom-color: var(--teal); background: rgba(79,143,130,0.1); }
+  .exo-trous-input:disabled { opacity: 0.7; }
+
+  /* ---- Module d'exercice : vrai ou faux ---- */
+  .exo-vf-choices { display: flex; gap: 14px; margin-bottom: 18px; }
+  .exo-vf-btn {
+    flex: 1; padding: 16px; border: 1.5px solid rgba(42,38,32,0.16); border-radius: 10px;
+    background: rgba(255,255,255,0.5); font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+    font-size: 16px; color: var(--ink); cursor: pointer; transition: all 0.15s ease;
+  }
+  .exo-vf-btn:hover:not(:disabled) { border-color: var(--denim); background: #fff; }
+  .exo-vf-btn.selected { border-color: var(--denim); background: rgba(92,111,163,0.14); }
+  .exo-vf-btn:disabled { cursor: default; opacity: 0.75; }
+
+  /* ---- Module d'exercice : association ---- */
+  .exo-assoc-table { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+  .exo-assoc-row { display: flex; align-items: center; gap: 12px; font-size: 14.5px; }
+  .exo-assoc-left { flex: 1; font-weight: 600; }
+  .exo-assoc-arrow { color: var(--ink-soft); flex-shrink: 0; }
+  .exo-assoc-select {
+    flex: 1; border: 1.5px solid rgba(42,38,32,0.18); border-radius: 8px; background: #fff;
+    font-family: 'Space Grotesk', sans-serif; font-size: 13.5px; color: var(--ink); padding: 8px 10px; outline: none;
+  }
+  .exo-assoc-select:focus { border-color: var(--denim); }
+
+  /* ---- Module d'exercice : remise dans l'ordre ---- */
+  .exo-ordre-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .exo-ordre-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px;
+    border: 1.5px solid rgba(42,38,32,0.16); border-radius: 9px; background: rgba(255,255,255,0.5); font-size: 14.5px;
+  }
+  .exo-ordre-text { flex: 1; }
+  .exo-ordre-btns { display: flex; gap: 4px; flex-shrink: 0; }
+  .exo-ordre-move {
+    border: 1px solid rgba(42,38,32,0.18); background: #fff; border-radius: 6px; width: 28px; height: 28px;
+    font-size: 12px; color: var(--ink); cursor: pointer;
+  }
+  .exo-ordre-move:hover:not(:disabled) { border-color: var(--denim); }
+  .exo-ordre-move:disabled { opacity: 0.35; cursor: default; }
+
+  /* ---- Module d'exercice : classement par catégories ---- */
+  .exo-cat-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .exo-cat-row { display: flex; align-items: center; gap: 12px; font-size: 14.5px; }
+  .exo-cat-text { flex: 1; font-weight: 600; }
+  .exo-cat-select {
+    flex: 1; border: 1.5px solid rgba(42,38,32,0.18); border-radius: 8px; background: #fff;
+    font-family: 'Space Grotesk', sans-serif; font-size: 13.5px; color: var(--ink); padding: 8px 10px; outline: none;
+  }
+  .exo-cat-select:focus { border-color: var(--denim); }
+
   .state-box { padding: 60px; text-align: center; color: var(--ink-soft); font-size: 14px; }
 
   .locked-box { background: var(--paper); color: var(--ink); border-radius: 14px; box-shadow: 0 14px 32px rgba(0,0,0,0.28);
@@ -219,6 +293,35 @@
   const btnLockedBack = document.getElementById('btn-locked-back');
 
   function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+
+  // ---- Découpe le texte d'un exercice "texte à trous" en segments texte /
+  // trou. Un trou s'écrit [[réponse]], ou [[réponse1|réponse2]] pour accepter
+  // plusieurs réponses. Même logique que dans l'éditeur (admin-editeur.html).
+  function parseTrousSegments(texte) {
+    const segments = [];
+    const re = /\[\[([^\]]*)\]\]/g;
+    const str = texte || '';
+    let lastIndex = 0;
+    let m;
+    while ((m = re.exec(str)) !== null) {
+      if (m.index > lastIndex) segments.push({ type: 'text', value: str.slice(lastIndex, m.index) });
+      const answers = m[1].split('|').map(s => s.trim()).filter(Boolean);
+      segments.push({ type: 'blank', answers });
+      lastIndex = re.lastIndex;
+    }
+    if (lastIndex < str.length) segments.push({ type: 'text', value: str.slice(lastIndex) });
+    return segments;
+  }
+
+  // ---- Normalise une réponse pour la comparaison : minuscules, accents et
+  // espaces superflus retirés, afin d'être tolérant sur la saisie de l'élève.
+  function normalizeTrousAnswer(str) {
+    return String(str || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
 
   // ---- Recalcule le verrouillage des sections d'un cours, à l'identique
   // de cours.html, pour empêcher d'ouvrir une activité verrouillée en
@@ -358,7 +461,8 @@
         return figure;
       }
       case 'exoModule': {
-        if (data.exoType === 'calcul') return renderExoCalcul(data, ctx);
+        const knownExoTypes = ['calcul', 'qcm', 'trous', 'vraifaux', 'association', 'ordre', 'categorie'];
+        if (knownExoTypes.includes(data.exoType)) return renderExoModule(data, ctx);
         return null;
       }
       default:
@@ -431,30 +535,27 @@
     }
   }
 
-  // ---- Rendu du bloc "Module d'exercice" (type calcul mathématique) ----
-  function renderExoCalcul(data, ctx) {
+  // ---- Rendu du bloc "Module d'exercice" : une ou plusieurs questions à la
+  // suite, de type calcul mathématique ou QCM. L'activité n'est marquée
+  // terminée que lorsque toutes les questions du module sont validées.
+  const EXO_TYPE_LABELS = {
+    calcul: '🧮 Calcul mathématique',
+    qcm: '☑️ QCM',
+    trous: '✏️ Texte à trous',
+    vraifaux: '✅ Vrai ou faux',
+    association: '🔗 Association',
+    ordre: "🔢 Remise dans l'ordre",
+    categorie: '🗂️ Classement par catégories'
+  };
+
+  function renderExoModule(data, ctx) {
     const wrap = document.createElement('div');
     wrap.className = 'exo-calc';
 
     const label = document.createElement('div');
     label.className = 'exo-calc-label';
-    label.textContent = '🧮 Calcul mathématique';
+    label.textContent = EXO_TYPE_LABELS[data.exoType] || EXO_TYPE_LABELS.calcul;
     wrap.appendChild(label);
-
-    const statement = document.createElement('div');
-    statement.className = 'exo-calc-statement';
-    const exprEl = document.createElement('span');
-    statement.appendChild(exprEl);
-    try {
-      window.katex.render(data.entree || '', exprEl, { throwOnError: true, displayMode: false });
-    } catch (e) {
-      exprEl.textContent = data.entree || '';
-    }
-    const eqMark = document.createElement('span');
-    eqMark.className = 'exo-calc-eq';
-    eqMark.textContent = '= ?';
-    statement.appendChild(eqMark);
-    wrap.appendChild(statement);
 
     if (ctx && ctx.isDone) {
       const done = document.createElement('div');
@@ -464,9 +565,83 @@
       return wrap;
     }
 
+    // Compatible avec l'ancien format à question unique à plat
+    // ({ exoType: 'calcul', entree, sortie }) pour les activités déjà enregistrées.
+    const questions = (Array.isArray(data.questions) && data.questions.length)
+      ? data.questions
+      : (data.exoType === 'calcul' && (data.entree || data.sortie) ? [{ entree: data.entree, sortie: data.sortie }] : []);
+
+    if (!questions.length) {
+      const empty = document.createElement('p');
+      empty.style.fontStyle = 'italic';
+      empty.style.color = 'var(--ink-soft)';
+      empty.textContent = "Cet exercice n'a pas encore de question.";
+      wrap.appendChild(empty);
+      return wrap;
+    }
+
+    const solvedSet = new Set();
+    function handleSolved(idx) {
+      solvedSet.add(idx);
+      if (solvedSet.size === questions.length && ctx && ctx.onExerciseSuccess) {
+        ctx.onExerciseSuccess().catch(() => { /* l'exercice reste marqué réussi visuellement */ });
+      }
+    }
+
+    const questionRenderers = {
+      qcm: renderQcmQuestion,
+      trous: renderTrousQuestion,
+      vraifaux: renderVraiFauxQuestion,
+      association: renderAssociationQuestion,
+      ordre: renderOrdreQuestion,
+      categorie: renderCategorieQuestion,
+      calcul: renderCalculQuestion
+    };
+    const renderQuestion = questionRenderers[data.exoType] || renderCalculQuestion;
+
+    questions.forEach((q, idx) => {
+      const qBlock = document.createElement('div');
+      qBlock.className = 'exo-question-block';
+
+      if (questions.length > 1) {
+        const qNum = document.createElement('div');
+        qNum.className = 'exo-question-num';
+        qNum.textContent = 'Question ' + (idx + 1) + ' / ' + questions.length;
+        qBlock.appendChild(qNum);
+      }
+
+      const body = renderQuestion(q, () => handleSolved(idx));
+      qBlock.appendChild(body);
+
+      wrap.appendChild(qBlock);
+    });
+
+    return wrap;
+  }
+
+  // ---- Une question de type "calcul mathématique" : l'élève tape ses
+  // étapes de calcul ligne par ligne jusqu'à retrouver le résultat attendu.
+  function renderCalculQuestion(q, onSolved) {
+    const box = document.createElement('div');
+
+    const statement = document.createElement('div');
+    statement.className = 'exo-calc-statement';
+    const exprEl = document.createElement('span');
+    statement.appendChild(exprEl);
+    try {
+      window.katex.render(q.entree || '', exprEl, { throwOnError: true, displayMode: false });
+    } catch (e) {
+      exprEl.textContent = q.entree || '';
+    }
+    const eqMark = document.createElement('span');
+    eqMark.className = 'exo-calc-eq';
+    eqMark.textContent = '= ?';
+    statement.appendChild(eqMark);
+    box.appendChild(statement);
+
     const linesWrap = document.createElement('div');
     linesWrap.className = 'exo-calc-lines';
-    wrap.appendChild(linesWrap);
+    box.appendChild(linesWrap);
 
     function addLine(focus) {
       const n = linesWrap.children.length + 1;
@@ -516,9 +691,9 @@
     const feedback = document.createElement('span');
     feedback.className = 'exo-calc-feedback';
     actions.appendChild(feedback);
-    wrap.appendChild(actions);
+    box.appendChild(actions);
 
-    validateBtn.addEventListener('click', async () => {
+    validateBtn.addEventListener('click', () => {
       const inputs = Array.from(linesWrap.querySelectorAll('.exo-line-input'));
       let lastVal = '';
       inputs.forEach(inp => { if (inp.value.trim()) lastVal = inp.value.trim(); });
@@ -530,7 +705,7 @@
       }
 
       const userResult = evaluateMathExpression(lastVal);
-      const expected = evaluateMathExpression(data.sortie || '');
+      const expected = evaluateMathExpression(q.sortie || '');
       const correct = userResult !== null && expected !== null && Math.abs(userResult - expected) < 1e-6;
 
       if (correct) {
@@ -538,16 +713,528 @@
         feedback.className = 'exo-calc-feedback success';
         inputs.forEach(i => { i.disabled = true; });
         validateBtn.disabled = true;
-        if (ctx && ctx.onExerciseSuccess) {
-          try { await ctx.onExerciseSuccess(); } catch (e) { /* l'exercice reste marqué réussi visuellement */ }
-        }
+        onSolved();
       } else {
         feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
         feedback.className = 'exo-calc-feedback error';
       }
     });
 
-    return wrap;
+    return box;
+  }
+
+  // ---- Une question de type QCM : réponse unique (radio) si une seule case
+  // est marquée correcte côté prof, réponses multiples (checkbox) sinon.
+  function renderQcmQuestion(q, onSolved) {
+    const box = document.createElement('div');
+
+    const enonce = document.createElement('div');
+    enonce.className = 'exo-qcm-enonce';
+    enonce.textContent = q.enonce || '';
+    box.appendChild(enonce);
+
+    const choices = Array.isArray(q.choices) ? q.choices : [];
+    const correctIdx = choices.map((c, i) => (c && c.correct) ? i : null).filter(i => i !== null).sort();
+    const isMultiple = correctIdx.length > 1;
+    const groupName = 'qcm-' + Math.random().toString(36).slice(2);
+
+    const choicesWrap = document.createElement('div');
+    choicesWrap.className = 'exo-qcm-choices';
+    const inputEls = [];
+
+    choices.forEach((choice, idx) => {
+      const optRow = document.createElement('label');
+      optRow.className = 'exo-qcm-option';
+
+      const input = document.createElement('input');
+      input.type = isMultiple ? 'checkbox' : 'radio';
+      input.name = groupName;
+      optRow.appendChild(input);
+
+      const text = document.createElement('span');
+      text.textContent = choice && choice.text ? choice.text : '';
+      optRow.appendChild(text);
+
+      choicesWrap.appendChild(optRow);
+      inputEls.push(input);
+    });
+    box.appendChild(choicesWrap);
+
+    const actions = document.createElement('div');
+    actions.className = 'exo-calc-actions';
+    const validateBtn = document.createElement('button');
+    validateBtn.type = 'button';
+    validateBtn.className = 'exo-calc-validate';
+    validateBtn.textContent = 'Valider';
+    actions.appendChild(validateBtn);
+
+    const feedback = document.createElement('span');
+    feedback.className = 'exo-calc-feedback';
+    actions.appendChild(feedback);
+    box.appendChild(actions);
+
+    validateBtn.addEventListener('click', () => {
+      const selected = inputEls.map((el, idx) => el.checked ? idx : null).filter(v => v !== null).sort();
+
+      if (!selected.length) {
+        feedback.textContent = 'Choisis au moins une réponse avant de valider.';
+        feedback.className = 'exo-calc-feedback error';
+        return;
+      }
+
+      const correct = correctIdx.length > 0 && selected.length === correctIdx.length
+        && selected.every((v, i) => v === correctIdx[i]);
+
+      if (correct) {
+        feedback.textContent = '✓ Bravo, c\'est correct !';
+        feedback.className = 'exo-calc-feedback success';
+        inputEls.forEach(el => { el.disabled = true; });
+        validateBtn.disabled = true;
+        onSolved();
+      } else {
+        feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
+        feedback.className = 'exo-calc-feedback error';
+      }
+    });
+
+    return box;
+  }
+
+  // ---- Une question de type "texte à trous" : l'élève complète un ou
+  // plusieurs champs insérés directement dans le texte de l'énoncé.
+  function renderTrousQuestion(q, onSolved) {
+    const box = document.createElement('div');
+
+    const textWrap = document.createElement('div');
+    textWrap.className = 'exo-trous-text';
+
+    const segments = parseTrousSegments(q.texte);
+    const blankInputs = [];
+    const blankAnswers = [];
+
+    segments.forEach(seg => {
+      if (seg.type === 'text') {
+        textWrap.appendChild(document.createTextNode(seg.value));
+      } else {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'exo-trous-input';
+        const longest = seg.answers.reduce((m, a) => Math.max(m, a.length), 3);
+        input.size = Math.min(Math.max(longest + 1, 3), 24);
+        textWrap.appendChild(input);
+        blankInputs.push(input);
+        blankAnswers.push(seg.answers);
+      }
+    });
+
+    box.appendChild(textWrap);
+
+    const actions = document.createElement('div');
+    actions.className = 'exo-calc-actions';
+    const validateBtn = document.createElement('button');
+    validateBtn.type = 'button';
+    validateBtn.className = 'exo-calc-validate';
+    validateBtn.textContent = 'Valider';
+    actions.appendChild(validateBtn);
+
+    const feedback = document.createElement('span');
+    feedback.className = 'exo-calc-feedback';
+    actions.appendChild(feedback);
+    box.appendChild(actions);
+
+    validateBtn.addEventListener('click', () => {
+      if (!blankInputs.length) {
+        feedback.textContent = "Cette question n'a pas de trou à compléter.";
+        feedback.className = 'exo-calc-feedback error';
+        return;
+      }
+
+      const allFilled = blankInputs.every(inp => inp.value.trim());
+      if (!allFilled) {
+        feedback.textContent = 'Complète tous les trous avant de valider.';
+        feedback.className = 'exo-calc-feedback error';
+        return;
+      }
+
+      const allCorrect = blankInputs.every((inp, i) => {
+        const got = normalizeTrousAnswer(inp.value);
+        return blankAnswers[i].some(ans => normalizeTrousAnswer(ans) === got);
+      });
+
+      if (allCorrect) {
+        feedback.textContent = '✓ Bravo, c\'est correct !';
+        feedback.className = 'exo-calc-feedback success';
+        blankInputs.forEach(inp => { inp.disabled = true; });
+        validateBtn.disabled = true;
+        onSolved();
+      } else {
+        feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
+        feedback.className = 'exo-calc-feedback error';
+      }
+    });
+
+    return box;
+  }
+
+  // ---- Une question de type "vrai ou faux" : deux boutons pour choisir. ----
+  function renderVraiFauxQuestion(q, onSolved) {
+    const box = document.createElement('div');
+
+    const enonce = document.createElement('div');
+    enonce.className = 'exo-qcm-enonce';
+    enonce.textContent = q.enonce || '';
+    box.appendChild(enonce);
+
+    const choicesWrap = document.createElement('div');
+    choicesWrap.className = 'exo-vf-choices';
+
+    let selected = null;
+    const trueBtn = document.createElement('button');
+    trueBtn.type = 'button';
+    trueBtn.className = 'exo-vf-btn';
+    trueBtn.textContent = 'Vrai';
+    const falseBtn = document.createElement('button');
+    falseBtn.type = 'button';
+    falseBtn.className = 'exo-vf-btn';
+    falseBtn.textContent = 'Faux';
+
+    function updateSelection() {
+      trueBtn.classList.toggle('selected', selected === true);
+      falseBtn.classList.toggle('selected', selected === false);
+    }
+    trueBtn.addEventListener('click', () => { selected = true; updateSelection(); });
+    falseBtn.addEventListener('click', () => { selected = false; updateSelection(); });
+
+    choicesWrap.appendChild(trueBtn);
+    choicesWrap.appendChild(falseBtn);
+    box.appendChild(choicesWrap);
+
+    const actions = document.createElement('div');
+    actions.className = 'exo-calc-actions';
+    const validateBtn = document.createElement('button');
+    validateBtn.type = 'button';
+    validateBtn.className = 'exo-calc-validate';
+    validateBtn.textContent = 'Valider';
+    actions.appendChild(validateBtn);
+
+    const feedback = document.createElement('span');
+    feedback.className = 'exo-calc-feedback';
+    actions.appendChild(feedback);
+    box.appendChild(actions);
+
+    validateBtn.addEventListener('click', () => {
+      if (selected === null) {
+        feedback.textContent = 'Choisis Vrai ou Faux avant de valider.';
+        feedback.className = 'exo-calc-feedback error';
+        return;
+      }
+
+      const correct = selected === !!q.reponse;
+      if (correct) {
+        feedback.textContent = '✓ Bravo, c\'est correct !';
+        feedback.className = 'exo-calc-feedback success';
+        trueBtn.disabled = true;
+        falseBtn.disabled = true;
+        validateBtn.disabled = true;
+        onSolved();
+      } else {
+        feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
+        feedback.className = 'exo-calc-feedback error';
+      }
+    });
+
+    return box;
+  }
+
+  // ---- Une question de type "association" : chaque élément de gauche est
+  // associé à une réponse choisie dans une liste déroulante mélangée. ----
+  function renderAssociationQuestion(q, onSolved) {
+    const box = document.createElement('div');
+
+    const paires = Array.isArray(q.paires) ? q.paires : [];
+    const shuffled = paires.map((p, i) => ({ texte: p.droite, origIndex: i }));
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    const table = document.createElement('div');
+    table.className = 'exo-assoc-table';
+    const selects = [];
+
+    paires.forEach((paire, idx) => {
+      const row = document.createElement('div');
+      row.className = 'exo-assoc-row';
+
+      const left = document.createElement('span');
+      left.className = 'exo-assoc-left';
+      left.textContent = paire.gauche || '';
+      row.appendChild(left);
+
+      const arrow = document.createElement('span');
+      arrow.className = 'exo-assoc-arrow';
+      arrow.textContent = '→';
+      row.appendChild(arrow);
+
+      const select = document.createElement('select');
+      select.className = 'exo-assoc-select';
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '-- choisis --';
+      select.appendChild(placeholder);
+      shuffled.forEach((s, sIdx) => {
+        const opt = document.createElement('option');
+        opt.value = String(sIdx);
+        opt.textContent = s.texte || '';
+        select.appendChild(opt);
+      });
+      row.appendChild(select);
+      selects.push(select);
+
+      table.appendChild(row);
+    });
+
+    box.appendChild(table);
+
+    const actions = document.createElement('div');
+    actions.className = 'exo-calc-actions';
+    const validateBtn = document.createElement('button');
+    validateBtn.type = 'button';
+    validateBtn.className = 'exo-calc-validate';
+    validateBtn.textContent = 'Valider';
+    actions.appendChild(validateBtn);
+
+    const feedback = document.createElement('span');
+    feedback.className = 'exo-calc-feedback';
+    actions.appendChild(feedback);
+    box.appendChild(actions);
+
+    validateBtn.addEventListener('click', () => {
+      const allSelected = selects.every(s => s.value !== '');
+      if (!allSelected) {
+        feedback.textContent = 'Complète toutes les associations avant de valider.';
+        feedback.className = 'exo-calc-feedback error';
+        return;
+      }
+
+      const allCorrect = selects.every((s, idx) => {
+        const sIdx = parseInt(s.value, 10);
+        return shuffled[sIdx] && shuffled[sIdx].origIndex === idx;
+      });
+
+      if (allCorrect) {
+        feedback.textContent = '✓ Bravo, c\'est correct !';
+        feedback.className = 'exo-calc-feedback success';
+        selects.forEach(s => { s.disabled = true; });
+        validateBtn.disabled = true;
+        onSolved();
+      } else {
+        feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
+        feedback.className = 'exo-calc-feedback error';
+      }
+    });
+
+    return box;
+  }
+
+  // ---- Une question de type "remise dans l'ordre" : les éléments sont
+  // mélangés, et l'élève les réordonne avec des flèches ▲▼. ----
+  function renderOrdreQuestion(q, onSolved) {
+    const box = document.createElement('div');
+
+    if (q.enonce) {
+      const enonce = document.createElement('div');
+      enonce.className = 'exo-qcm-enonce';
+      enonce.textContent = q.enonce;
+      box.appendChild(enonce);
+    }
+
+    const originalItems = Array.isArray(q.items) ? q.items : [];
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    let order = originalItems.map((text, i) => ({ text, origIndex: i }));
+    if (order.length > 1) {
+      let attempts = 0;
+      let candidate = shuffle(order);
+      while (attempts < 8 && candidate.every((it, i) => it.origIndex === i)) {
+        candidate = shuffle(order);
+        attempts++;
+      }
+      order = candidate;
+    }
+
+    const list = document.createElement('div');
+    list.className = 'exo-ordre-list';
+    box.appendChild(list);
+
+    let locked = false;
+
+    function renderList() {
+      list.innerHTML = '';
+      order.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'exo-ordre-row';
+
+        const text = document.createElement('span');
+        text.className = 'exo-ordre-text';
+        text.textContent = item.text || '';
+        row.appendChild(text);
+
+        const btns = document.createElement('div');
+        btns.className = 'exo-ordre-btns';
+
+        const upBtn = document.createElement('button');
+        upBtn.type = 'button';
+        upBtn.className = 'exo-ordre-move';
+        upBtn.textContent = '▲';
+        upBtn.disabled = locked || idx === 0;
+        upBtn.addEventListener('click', () => {
+          [order[idx - 1], order[idx]] = [order[idx], order[idx - 1]];
+          renderList();
+        });
+        btns.appendChild(upBtn);
+
+        const downBtn = document.createElement('button');
+        downBtn.type = 'button';
+        downBtn.className = 'exo-ordre-move';
+        downBtn.textContent = '▼';
+        downBtn.disabled = locked || idx === order.length - 1;
+        downBtn.addEventListener('click', () => {
+          [order[idx], order[idx + 1]] = [order[idx + 1], order[idx]];
+          renderList();
+        });
+        btns.appendChild(downBtn);
+
+        row.appendChild(btns);
+        list.appendChild(row);
+      });
+    }
+
+    renderList();
+
+    const actions = document.createElement('div');
+    actions.className = 'exo-calc-actions';
+    const validateBtn = document.createElement('button');
+    validateBtn.type = 'button';
+    validateBtn.className = 'exo-calc-validate';
+    validateBtn.textContent = 'Valider';
+    actions.appendChild(validateBtn);
+
+    const feedback = document.createElement('span');
+    feedback.className = 'exo-calc-feedback';
+    actions.appendChild(feedback);
+    box.appendChild(actions);
+
+    validateBtn.addEventListener('click', () => {
+      const correct = order.every((item, idx) => item.origIndex === idx);
+      if (correct) {
+        feedback.textContent = '✓ Bravo, c\'est correct !';
+        feedback.className = 'exo-calc-feedback success';
+        locked = true;
+        renderList();
+        validateBtn.disabled = true;
+        onSolved();
+      } else {
+        feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
+        feedback.className = 'exo-calc-feedback error';
+      }
+    });
+
+    return box;
+  }
+
+  // ---- Une question de type "classement par catégories" : chaque élément
+  // est rangé dans la bonne catégorie via une liste déroulante. ----
+  function renderCategorieQuestion(q, onSolved) {
+    const box = document.createElement('div');
+
+    if (q.enonce) {
+      const enonce = document.createElement('div');
+      enonce.className = 'exo-qcm-enonce';
+      enonce.textContent = q.enonce;
+      box.appendChild(enonce);
+    }
+
+    const categories = Array.isArray(q.categories) ? q.categories : [];
+    const items = Array.isArray(q.items) ? q.items : [];
+
+    const list = document.createElement('div');
+    list.className = 'exo-cat-list';
+    const selects = [];
+
+    items.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'exo-cat-row';
+
+      const text = document.createElement('span');
+      text.className = 'exo-cat-text';
+      text.textContent = item.texte || '';
+      row.appendChild(text);
+
+      const select = document.createElement('select');
+      select.className = 'exo-cat-select';
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '-- choisis --';
+      select.appendChild(placeholder);
+      categories.forEach((cat, cIdx) => {
+        const opt = document.createElement('option');
+        opt.value = String(cIdx);
+        opt.textContent = cat || ('Catégorie ' + (cIdx + 1));
+        select.appendChild(opt);
+      });
+      row.appendChild(select);
+      selects.push(select);
+
+      list.appendChild(row);
+    });
+
+    box.appendChild(list);
+
+    const actions = document.createElement('div');
+    actions.className = 'exo-calc-actions';
+    const validateBtn = document.createElement('button');
+    validateBtn.type = 'button';
+    validateBtn.className = 'exo-calc-validate';
+    validateBtn.textContent = 'Valider';
+    actions.appendChild(validateBtn);
+
+    const feedback = document.createElement('span');
+    feedback.className = 'exo-calc-feedback';
+    actions.appendChild(feedback);
+    box.appendChild(actions);
+
+    validateBtn.addEventListener('click', () => {
+      const allSelected = selects.every(s => s.value !== '');
+      if (!allSelected) {
+        feedback.textContent = 'Classe tous les éléments avant de valider.';
+        feedback.className = 'exo-calc-feedback error';
+        return;
+      }
+
+      const allCorrect = selects.every((s, idx) => parseInt(s.value, 10) === (items[idx].categorie || 0));
+
+      if (allCorrect) {
+        feedback.textContent = '✓ Bravo, c\'est correct !';
+        feedback.className = 'exo-calc-feedback success';
+        selects.forEach(s => { s.disabled = true; });
+        validateBtn.disabled = true;
+        onSolved();
+      } else {
+        feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
+        feedback.className = 'exo-calc-feedback error';
+      }
+    });
+
+    return box;
   }
 
   function renderContent(contenu, ctx) {
