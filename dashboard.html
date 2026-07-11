@@ -660,7 +660,7 @@
 
     const { data: activites } = await supabaseClient
       .from('activites')
-      .select('id, section_id');
+      .select('id, section_id, obligatoire');
 
     // 4. Récupérer la progression de l'utilisateur
     const { data: progression } = await supabaseClient
@@ -673,10 +673,11 @@
     );
 
     // 5. Calculer, pour chaque cours, le nombre total d'activités et le nombre terminées
+    // (les activités facultatives ne comptent pas dans le total à faire).
     function activitesForCours(coursId) {
       const moduleIds = (modules || []).filter(m => m.cours_id === coursId).map(m => m.id);
       const sectionIds = (sections || []).filter(s => moduleIds.includes(s.module_id)).map(s => s.id);
-      return (activites || []).filter(a => sectionIds.includes(a.section_id));
+      return (activites || []).filter(a => sectionIds.includes(a.section_id) && a.obligatoire !== false);
     }
 
     // 6. Construire les cartes + calculer les stats globales

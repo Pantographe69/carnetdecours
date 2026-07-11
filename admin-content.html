@@ -72,6 +72,17 @@
   .field input:focus, .field select:focus { border-bottom-color: var(--teal); }
   .form-actions { display: flex; gap: 10px; margin-top: 4px; }
 
+  .switch-field { display: flex; align-items: center; gap: 12px; margin: 4px 0; }
+  .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch-slider { position: absolute; inset: 0; cursor: pointer; background: rgba(42,38,32,0.2); border-radius: 999px; transition: background 0.15s ease; }
+  .switch-slider::before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: transform 0.15s ease; }
+  .switch input:checked + .switch-slider { background: var(--teal); }
+  .switch input:checked + .switch-slider::before { transform: translateX(18px); }
+  .switch-copy .lbl { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .switch-copy .sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 1px; }
+
   .msg { font-size: 13px; padding: 10px 12px; border-radius: 6px; display: none; line-height: 1.4; }
   .msg.show { display: block; }
   .msg.error { background: rgba(181,88,60,0.12); color: var(--brick); }
@@ -100,6 +111,8 @@
   .node-title { flex: 1; min-width: 0; font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
   .node-title .type-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
     background: rgba(92,111,163,0.12); color: var(--denim); padding: 2px 7px; border-radius: 999px; margin-right: 8px; vertical-align: 1px; }
+  .node-title .oblig-pill { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    background: rgba(217,164,65,0.16); color: var(--amber); padding: 2px 7px; border-radius: 999px; margin-left: 8px; vertical-align: 1px; }
   .node-count { font-size: 11.5px; color: var(--ink-soft); flex-shrink: 0; margin-right: 2px; white-space: nowrap; }
   .node-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
@@ -182,9 +195,9 @@
 
   // ---- Niveaux de l'arbre : modules -> sections -> activités ----
   const LEVELS = [
-    { table: 'modules',   parentField: 'cours_id',   hasType: false, addLabel: '+ Ajouter une section',  emptyLabel: "Aucune section pour l'instant.",  countWord: ['module', 'modules'] },
-    { table: 'sections',  parentField: 'module_id',  hasType: false, addLabel: '+ Ajouter une activité',  emptyLabel: "Aucune activité pour l'instant.", countWord: ['section', 'sections'] },
-    { table: 'activites', parentField: 'section_id', hasType: true,  addLabel: null,                     emptyLabel: null,                              countWord: ['activité', 'activités'] }
+    { table: 'modules',   parentField: 'cours_id',   hasType: false, hasObligatoire: false, addLabel: '+ Ajouter une section',  emptyLabel: "Aucune section pour l'instant.",  countWord: ['module', 'modules'] },
+    { table: 'sections',  parentField: 'module_id',  hasType: false, hasObligatoire: false, addLabel: '+ Ajouter une activité',  emptyLabel: "Aucune activité pour l'instant.", countWord: ['section', 'sections'] },
+    { table: 'activites', parentField: 'section_id', hasType: true,  hasObligatoire: true,  addLabel: null,                     emptyLabel: null,                              countWord: ['activité', 'activités'] }
   ];
 
   const params = new URLSearchParams(window.location.search);
@@ -210,7 +223,9 @@
 
   async function fetchLevel(levelIdx, parentId) {
     const lvl = LEVELS[levelIdx];
-    const fields = lvl.hasType ? 'id, titre, type, ordre' : 'id, titre, ordre';
+    let fields = 'id, titre, ordre';
+    if (lvl.hasType) fields += ', type';
+    if (lvl.hasObligatoire) fields += ', obligatoire';
     const { data, error } = await supabaseClient
       .from(lvl.table).select(fields).eq(lvl.parentField, parentId).order('ordre');
     if (error) throw error;
@@ -231,6 +246,7 @@
         existing.titre = row.titre;
         existing.ordre = row.ordre;
         if ('type' in row) existing.type = row.type;
+        if ('obligatoire' in row) existing.obligatoire = row.obligatoire;
         return existing;
       }
       return toNode(row);
@@ -294,11 +310,12 @@
 
     const icon = isLeaf ? (TYPE_ICONS[node.type] || '📄') : (node.expanded ? '📂' : '📁');
     const typeTag = isLeaf ? `<span class="type-tag">${escapeHtml(node.type || '—')}</span>` : '';
+    const obligTag = (isLeaf && node.obligatoire === false) ? '<span class="oblig-pill">Optionnel</span>' : '';
 
     row.innerHTML = `
       <button class="node-toggle ${node.expanded ? 'open' : ''} ${isLeaf ? 'leaf' : ''}" ${isLeaf ? 'tabindex="-1"' : ''}>${isLeaf ? '' : CHEVRON}</button>
       <span class="node-icon">${icon}</span>
-      <span class="node-title">${typeTag}${escapeHtml(node.titre)}</span>
+      <span class="node-title">${typeTag}${escapeHtml(node.titre)}${obligTag}</span>
       <span class="node-count" data-count></span>
       <div class="node-actions"></div>
     `;
@@ -394,15 +411,20 @@
   }
 
   // ---- Formulaire d'ajout (module racine ou enfant d'un nœud) ----
-  function buildCreateFields(hasType) {
-    const div = document.createElement('div');
-    div.className = 'row-two';
-    div.innerHTML = `
+  function buildCreateFields(lvl) {
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.flexDirection = 'column';
+    wrap.style.gap = '14px';
+
+    const row = document.createElement('div');
+    row.className = 'row-two';
+    row.innerHTML = `
       <div class="field" style="flex:2;">
         <label>Titre</label>
         <input type="text" class="f-titre" placeholder="Titre" required>
       </div>
-      ${hasType ? `
+      ${lvl.hasType ? `
       <div class="field">
         <label>Type</label>
         <select class="f-type">
@@ -418,14 +440,32 @@
         <input type="number" class="f-ordre" value="0">
       </div>
     `;
-    return div;
+    wrap.appendChild(row);
+
+    if (lvl.hasObligatoire) {
+      const switchField = document.createElement('div');
+      switchField.className = 'switch-field';
+      switchField.innerHTML = `
+        <label class="switch">
+          <input type="checkbox" class="f-obligatoire" checked>
+          <span class="switch-slider"></span>
+        </label>
+        <div class="switch-copy">
+          <div class="lbl">Activité obligatoire</div>
+          <div class="sub">Désactive si cette activité est facultative pour les élèves.</div>
+        </div>
+      `;
+      wrap.appendChild(switchField);
+    }
+
+    return wrap;
   }
 
   function renderAddForm(node, levelIdx) {
     const lvl = LEVELS[levelIdx + 1];
     const panel = document.createElement('div');
     panel.className = 'inline-panel';
-    const fields = buildCreateFields(lvl.hasType);
+    const fields = buildCreateFields(lvl);
     const msg = document.createElement('div');
     msg.className = 'msg';
     const actionsRow = document.createElement('div');
@@ -451,6 +491,7 @@
       if (!titre) { showMsg(msg, 'Le titre est requis.', 'error'); return; }
       const payload = { titre, ordre, [lvl.parentField]: node.id };
       if (lvl.hasType) payload.type = fields.querySelector('.f-type').value;
+      if (lvl.hasObligatoire) payload.obligatoire = fields.querySelector('.f-obligatoire').checked;
 
       btnCreate.disabled = true; btnCreate.textContent = 'Création...';
       const { error } = await supabaseClient.from(lvl.table).insert(payload);
@@ -476,7 +517,7 @@
   function renderRootAddForm() {
     const panel = document.getElementById('root-add-panel');
     panel.innerHTML = '';
-    const fields = buildCreateFields(false);
+    const fields = buildCreateFields(LEVELS[0]);
     const msg = document.createElement('div');
     msg.className = 'msg';
     const actionsRow = document.createElement('div');
@@ -550,6 +591,21 @@
         <input type="number" class="e-ordre" value="${node.ordre ?? 0}">
       </div>
     `;
+    let switchField = null;
+    if (lvl.hasObligatoire) {
+      switchField = document.createElement('div');
+      switchField.className = 'switch-field';
+      switchField.innerHTML = `
+        <label class="switch">
+          <input type="checkbox" class="e-obligatoire" ${node.obligatoire === false ? '' : 'checked'}>
+          <span class="switch-slider"></span>
+        </label>
+        <div class="switch-copy">
+          <div class="lbl">Activité obligatoire</div>
+          <div class="sub">Désactive si cette activité est facultative pour les élèves.</div>
+        </div>
+      `;
+    }
     const actionsRow = document.createElement('div');
     actionsRow.className = 'form-actions';
     const btnSave = document.createElement('button');
@@ -564,6 +620,7 @@
     const msg = document.createElement('div');
     msg.className = 'msg';
     panel.appendChild(row);
+    if (switchField) panel.appendChild(switchField);
     panel.appendChild(actionsRow);
     panel.appendChild(msg);
 
@@ -575,6 +632,7 @@
       if (!titre) { showMsg(msg, 'Le titre est requis.', 'error'); return; }
       const payload = { titre, ordre };
       if (lvl.hasType) payload.type = row.querySelector('.e-type').value;
+      if (lvl.hasObligatoire) payload.obligatoire = switchField.querySelector('.e-obligatoire').checked;
 
       btnSave.disabled = true; btnSave.textContent = 'Enregistrement...';
       const { error } = await supabaseClient.from(lvl.table).update(payload).eq('id', node.id);

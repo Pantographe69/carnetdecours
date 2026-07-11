@@ -213,6 +213,11 @@
   // ---- Construit l'arbre modules -> sections -> activités et calcule le
   // verrouillage séquentiel : une section n'est déverrouillée que si toutes
   // les sections précédentes (dans l'ordre global du cours) sont terminées.
+  // ---- Construit l'arbre modules -> sections -> activités et calcule le
+  // verrouillage séquentiel : une section n'est déverrouillée que si toutes
+  // les sections précédentes (dans l'ordre global du cours) sont terminées.
+  // Les activités facultatives ne comptent pas dans ce calcul : l'élève peut
+  // les ignorer sans bloquer la suite du cours.
   function buildLockMap(termineIds) {
     const flatSections = [];
     tree.forEach(mod => mod.sections.forEach(sec => flatSections.push(sec)));
@@ -220,8 +225,9 @@
     let previousOk = true;
     flatSections.forEach(sec => {
       sec.locked = !previousOk;
-      const total = sec.activites.length;
-      const faites = sec.activites.filter(a => termineIds.has(a.id)).length;
+      const obligatoires = sec.activites.filter(a => a.obligatoire !== false);
+      const total = obligatoires.length;
+      const faites = obligatoires.filter(a => termineIds.has(a.id)).length;
       sec.total = total;
       sec.faites = faites;
       sec.complete = total === 0 ? true : faites === total;
@@ -278,7 +284,7 @@
     let activites = [];
     if (sectionIds.length) {
       const { data } = await supabaseClient
-        .from('activites').select('id, titre, type, ordre, section_id').in('section_id', sectionIds).order('ordre');
+        .from('activites').select('id, titre, type, ordre, section_id, obligatoire').in('section_id', sectionIds).order('ordre');
       activites = data || [];
     }
 
@@ -415,7 +421,7 @@
     row.innerHTML = `
       <span class="node-toggle hidden"></span>
       <span class="node-icon">${TYPE_ICONS[a.type] || '📄'}</span>
-      <span class="node-title"><span class="type-tag">${escapeHtml(a.type || '—')}</span>${escapeHtml(a.titre)}</span>
+      <span class="node-title"><span class="type-tag">${escapeHtml(a.type || '—')}</span>${escapeHtml(a.titre)}${a.obligatoire === false ? '<span class="tag optional">Optionnel</span>' : ''}</span>
       <span class="status-dot ${a.done ? 'done' : 'todo'}">${a.done ? '✓' : '○'}</span>
     `;
     link.appendChild(row);

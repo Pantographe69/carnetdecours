@@ -45,6 +45,8 @@
   .page-head h1 { font-family: 'Caveat', cursive; font-weight: 700; font-size: 42px; line-height: 1.1; margin-bottom: 6px; }
   .type-tag { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.04em; background: rgba(92,111,163,0.18); color: #A9B6E0; padding: 3px 9px; border-radius: 999px; }
+  .tag.optional { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; background: rgba(217,164,65,0.2); color: var(--amber); padding: 3px 9px; border-radius: 999px; margin-left: 8px; }
 
   .done-zone { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .btn { border: none; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 11px 20px;
@@ -325,13 +327,14 @@
 
   // ---- Recalcule le verrouillage des sections d'un cours, à l'identique
   // de cours.html, pour empêcher d'ouvrir une activité verrouillée en
-  // devinant simplement son URL.
+  // devinant simplement son URL. Les activités facultatives ne comptent pas.
   function buildLockMap(sections, termineIds) {
     let previousOk = true;
     sections.forEach(sec => {
       sec.locked = !previousOk;
-      const total = sec.activites.length;
-      const faites = sec.activites.filter(id => termineIds.has(id)).length;
+      const obligatoires = sec.activites.filter(a => a.obligatoire !== false);
+      const total = obligatoires.length;
+      const faites = obligatoires.filter(a => termineIds.has(a.id)).length;
       sec.complete = total === 0 ? true : faites === total;
       previousOk = previousOk && sec.complete;
     });
@@ -1266,7 +1269,7 @@
     const userId = session.user.id;
 
     const { data: a } = await supabaseClient
-      .from('activites').select('id, titre, type, contenu, section_id').eq('id', activiteId).single();
+      .from('activites').select('id, titre, type, contenu, section_id, obligatoire').eq('id', activiteId).single();
 
     if (!a) {
       stateBox.textContent = "Cette activité n'existe pas ou plus.";
@@ -1296,7 +1299,7 @@
       : { data: [] };
     const sectionIds = (sections || []).map(x => x.id);
     const { data: activites } = sectionIds.length
-      ? await supabaseClient.from('activites').select('id, section_id').in('section_id', sectionIds)
+      ? await supabaseClient.from('activites').select('id, section_id, obligatoire').in('section_id', sectionIds)
       : { data: [] };
     const { data: progression } = await supabaseClient.from('progression').select('activite_id, termine').eq('user_id', userId);
     const termineIds = new Set((progression || []).filter(p => p.termine).map(p => p.activite_id));
@@ -1304,7 +1307,7 @@
     const sectionTree = (modules || []).flatMap(mod =>
       (sections || []).filter(s2 => s2.module_id === mod.id).map(s2 => ({
         id: s2.id,
-        activites: (activites || []).filter(ac => ac.section_id === s2.id).map(ac => ac.id)
+        activites: (activites || []).filter(ac => ac.section_id === s2.id).map(ac => ({ id: ac.id, obligatoire: ac.obligatoire }))
       }))
     );
     buildLockMap(sectionTree, termineIds);
@@ -1318,6 +1321,12 @@
 
     pageTitleEl.textContent = a.titre;
     typeTagEl.textContent = a.type || '—';
+    if (a.obligatoire === false) {
+      const optTag = document.createElement('span');
+      optTag.className = 'tag optional';
+      optTag.textContent = 'Optionnel';
+      typeTagEl.insertAdjacentElement('afterend', optTag);
+    }
 
     let isDone = termineIds.has(a.id);
     function updateDoneButton() {
