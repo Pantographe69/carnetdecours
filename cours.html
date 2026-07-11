@@ -231,6 +231,17 @@
       sec.total = total;
       sec.faites = faites;
       sec.complete = total === 0 ? true : faites === total;
+
+      // Verrouillage séquentiel des activités à l'intérieur de la section :
+      // une activité reste verrouillée tant qu'une activité obligatoire qui
+      // la précède n'est pas terminée. Les activités facultatives ne
+      // bloquent jamais les suivantes.
+      let previousActOk = true;
+      sec.activites.forEach(a => {
+        a.locked = sec.locked || !previousActOk;
+        if (a.obligatoire !== false) previousActOk = previousActOk && termineIds.has(a.id);
+      });
+
       previousOk = previousOk && sec.complete;
     });
 
@@ -412,18 +423,29 @@
     const wrap = document.createElement('div');
     wrap.className = 'tree-node';
 
+    const row = document.createElement('div');
+    row.className = 'node-row' + (a.locked ? ' locked' : ' clickable');
+
+    const icon = a.locked ? '🔒' : (TYPE_ICONS[a.type] || '📄');
+    const rightSlot = a.locked
+      ? '<span class="lock-note">Termine l\'activité précédente</span>'
+      : `<span class="status-dot ${a.done ? 'done' : 'todo'}">${a.done ? '✓' : '○'}</span>`;
+
+    row.innerHTML = `
+      <span class="node-toggle hidden"></span>
+      <span class="node-icon">${icon}</span>
+      <span class="node-title"><span class="type-tag">${escapeHtml(a.type || '—')}</span>${escapeHtml(a.titre)}${a.obligatoire === false ? '<span class="tag optional">Optionnel</span>' : ''}</span>
+      ${rightSlot}
+    `;
+
+    if (a.locked) {
+      wrap.appendChild(row);
+      return wrap;
+    }
+
     const link = document.createElement('a');
     link.className = 'activity-link';
     link.href = 'activite.html?activite_id=' + a.id;
-
-    const row = document.createElement('div');
-    row.className = 'node-row clickable';
-    row.innerHTML = `
-      <span class="node-toggle hidden"></span>
-      <span class="node-icon">${TYPE_ICONS[a.type] || '📄'}</span>
-      <span class="node-title"><span class="type-tag">${escapeHtml(a.type || '—')}</span>${escapeHtml(a.titre)}${a.obligatoire === false ? '<span class="tag optional">Optionnel</span>' : ''}</span>
-      <span class="status-dot ${a.done ? 'done' : 'todo'}">${a.done ? '✓' : '○'}</span>
-    `;
     link.appendChild(row);
     wrap.appendChild(link);
     return wrap;

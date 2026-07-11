@@ -52,6 +52,14 @@
   .type-tag { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.04em; background: rgba(92,111,163,0.18); color: #A9B6E0; padding: 3px 9px; border-radius: 999px; }
 
+  .oblig-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 10px; border-radius: 999px; cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif; margin-left: 8px; vertical-align: 1px; transition: all 0.15s ease; border: 1px solid transparent; }
+  .oblig-toggle.req { background: rgba(79,143,130,0.16); color: var(--teal); border-color: rgba(79,143,130,0.35); }
+  .oblig-toggle.opt { background: rgba(217,164,65,0.18); color: var(--amber); border-color: rgba(217,164,65,0.4); }
+  .oblig-toggle:hover:not(:disabled) { filter: brightness(1.1); }
+  .oblig-toggle:disabled { opacity: 0.6; cursor: default; }
+
   .save-zone { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .btn { border: none; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; padding: 11px 20px;
     border-radius: 8px; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; white-space: nowrap; }
@@ -450,7 +458,7 @@
   <div class="page-head">
     <div>
       <h1 id="page-title">…</h1>
-      <p><span class="type-tag" id="type-tag">…</span></p>
+      <p><span class="type-tag" id="type-tag">…</span><button type="button" class="oblig-toggle" id="oblig-toggle" style="display:none;"></button></p>
     </div>
     <div class="save-zone">
       <span class="save-status" id="save-status"></span>
@@ -538,10 +546,38 @@
 
   let editor;
   let currentActiviteType = '';
+  const obligToggleEl = document.getElementById('oblig-toggle');
+
+  function renderObligToggle(obligatoire) {
+    const isObligatoire = obligatoire !== false;
+    obligToggleEl.style.display = 'inline-flex';
+    obligToggleEl.className = 'oblig-toggle ' + (isObligatoire ? 'req' : 'opt');
+    obligToggleEl.textContent = isObligatoire ? '✓ Obligatoire' : '○ Optionnel';
+    obligToggleEl.title = isObligatoire
+      ? 'Cette activité est obligatoire — clique pour la rendre optionnelle.'
+      : 'Cette activité est optionnelle — clique pour la rendre obligatoire.';
+    obligToggleEl.dataset.obligatoire = String(isObligatoire);
+  }
+
+  obligToggleEl.addEventListener('click', async () => {
+    const next = obligToggleEl.dataset.obligatoire !== 'true';
+    obligToggleEl.disabled = true;
+    const { error } = await supabaseClient.from('activites').update({ obligatoire: next }).eq('id', activiteId);
+    obligToggleEl.disabled = false;
+    if (error) {
+      saveStatusEl.textContent = 'Erreur : ' + error.message;
+      saveStatusEl.className = 'save-status error';
+      return;
+    }
+    renderObligToggle(next);
+    saveStatusEl.textContent = 'Enregistré ✓';
+    saveStatusEl.className = 'save-status success';
+    setTimeout(() => { saveStatusEl.textContent = ''; saveStatusEl.className = 'save-status'; }, 3000);
+  });
 
   // ---- Fil d'ariane + titre ----
   async function loadContext() {
-    const { data: a } = await supabaseClient.from('activites').select('titre, type, contenu, section_id').eq('id', activiteId).single();
+    const { data: a } = await supabaseClient.from('activites').select('titre, type, contenu, section_id, obligatoire').eq('id', activiteId).single();
     if (!a) {
       pageTitleEl.textContent = 'Activité introuvable';
       editorStateEl.textContent = "Cette activité n'existe pas ou plus.";
@@ -561,6 +597,7 @@
     pageTitleEl.textContent = a.titre;
     typeTagEl.textContent = a.type || '—';
     currentActiviteType = a.type || '';
+    renderObligToggle(a.obligatoire);
 
     return a.contenu || null;
   }

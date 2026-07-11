@@ -248,7 +248,7 @@
     <div class="locked-box">
       <span class="lock-icon">🔒</span>
       <h2>Cette activité n'est pas encore accessible</h2>
-      <p>Termine d'abord les sections précédentes de ce cours pour la débloquer.</p>
+      <p id="locked-msg">Termine d'abord les sections précédentes de ce cours pour la débloquer.</p>
       <a class="btn btn-primary" id="btn-locked-back" href="dashboard.html">Retour au cours</a>
     </div>
   </div>
@@ -285,6 +285,7 @@
   const breadcrumbEl = document.getElementById('breadcrumb');
   const stateBox = document.getElementById('state-box');
   const lockedState = document.getElementById('locked-state');
+  const lockedMsgEl = document.getElementById('locked-msg');
   const mainState = document.getElementById('main-state');
   const pageTitleEl = document.getElementById('page-title');
   const typeTagEl = document.getElementById('type-tag');
@@ -1299,7 +1300,7 @@
       : { data: [] };
     const sectionIds = (sections || []).map(x => x.id);
     const { data: activites } = sectionIds.length
-      ? await supabaseClient.from('activites').select('id, section_id, obligatoire').in('section_id', sectionIds)
+      ? await supabaseClient.from('activites').select('id, section_id, obligatoire').in('section_id', sectionIds).order('ordre')
       : { data: [] };
     const { data: progression } = await supabaseClient.from('progression').select('activite_id, termine').eq('user_id', userId);
     const termineIds = new Set((progression || []).filter(p => p.termine).map(p => p.activite_id));
@@ -1314,6 +1315,27 @@
 
     const mySection = sectionTree.find(s2 => s2.id === a.section_id);
     if (mySection && mySection.locked) {
+      lockedMsgEl.textContent = "Termine d'abord les sections précédentes de ce cours pour la débloquer.";
+      stateBox.style.display = 'none';
+      lockedState.style.display = 'block';
+      return;
+    }
+
+    // ---- Verrouillage séquentiel des activités à l'intérieur de la section :
+    // une activité est verrouillée tant qu'une activité obligatoire qui la
+    // précède (dans l'ordre) n'est pas terminée. Les activités facultatives
+    // ne bloquent jamais la suite.
+    let previousActOk = true;
+    let myActivityLocked = false;
+    if (mySection) {
+      for (const ac of mySection.activites) {
+        const acLocked = !previousActOk;
+        if (ac.id === a.id) { myActivityLocked = acLocked; break; }
+        if (ac.obligatoire !== false) previousActOk = previousActOk && termineIds.has(ac.id);
+      }
+    }
+    if (myActivityLocked) {
+      lockedMsgEl.textContent = "Termine d'abord les activités précédentes de cette section pour la débloquer.";
       stateBox.style.display = 'none';
       lockedState.style.display = 'block';
       return;
