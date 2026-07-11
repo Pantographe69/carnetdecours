@@ -614,7 +614,8 @@
         qBlock.appendChild(qNum);
       }
 
-      const body = renderQuestion(q, () => handleSolved(idx));
+      const logFn = (reussi) => { if (ctx && ctx.logAttempt) ctx.logAttempt(idx, data.exoType, reussi); };
+      const body = renderQuestion(q, () => handleSolved(idx), logFn);
       qBlock.appendChild(body);
 
       wrap.appendChild(qBlock);
@@ -625,7 +626,7 @@
 
   // ---- Une question de type "calcul mathématique" : l'élève tape ses
   // étapes de calcul ligne par ligne jusqu'à retrouver le résultat attendu.
-  function renderCalculQuestion(q, onSolved) {
+  function renderCalculQuestion(q, onSolved, logFn) {
     const box = document.createElement('div');
 
     const statement = document.createElement('div');
@@ -717,10 +718,12 @@
         feedback.className = 'exo-calc-feedback success';
         inputs.forEach(i => { i.disabled = true; });
         validateBtn.disabled = true;
+        if (logFn) logFn(true);
         onSolved();
       } else {
         feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
         feedback.className = 'exo-calc-feedback error';
+        if (logFn) logFn(false);
       }
     });
 
@@ -729,7 +732,7 @@
 
   // ---- Une question de type QCM : réponse unique (radio) si une seule case
   // est marquée correcte côté prof, réponses multiples (checkbox) sinon.
-  function renderQcmQuestion(q, onSolved) {
+  function renderQcmQuestion(q, onSolved, logFn) {
     const box = document.createElement('div');
 
     const enonce = document.createElement('div');
@@ -794,10 +797,12 @@
         feedback.className = 'exo-calc-feedback success';
         inputEls.forEach(el => { el.disabled = true; });
         validateBtn.disabled = true;
+        if (logFn) logFn(true);
         onSolved();
       } else {
         feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
         feedback.className = 'exo-calc-feedback error';
+        if (logFn) logFn(false);
       }
     });
 
@@ -806,7 +811,7 @@
 
   // ---- Une question de type "texte à trous" : l'élève complète un ou
   // plusieurs champs insérés directement dans le texte de l'énoncé.
-  function renderTrousQuestion(q, onSolved) {
+  function renderTrousQuestion(q, onSolved, logFn) {
     const box = document.createElement('div');
 
     const textWrap = document.createElement('div');
@@ -870,10 +875,12 @@
         feedback.className = 'exo-calc-feedback success';
         blankInputs.forEach(inp => { inp.disabled = true; });
         validateBtn.disabled = true;
+        if (logFn) logFn(true);
         onSolved();
       } else {
         feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
         feedback.className = 'exo-calc-feedback error';
+        if (logFn) logFn(false);
       }
     });
 
@@ -881,7 +888,7 @@
   }
 
   // ---- Une question de type "vrai ou faux" : deux boutons pour choisir. ----
-  function renderVraiFauxQuestion(q, onSolved) {
+  function renderVraiFauxQuestion(q, onSolved, logFn) {
     const box = document.createElement('div');
 
     const enonce = document.createElement('div');
@@ -940,10 +947,12 @@
         trueBtn.disabled = true;
         falseBtn.disabled = true;
         validateBtn.disabled = true;
+        if (logFn) logFn(true);
         onSolved();
       } else {
         feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
         feedback.className = 'exo-calc-feedback error';
+        if (logFn) logFn(false);
       }
     });
 
@@ -952,7 +961,7 @@
 
   // ---- Une question de type "association" : chaque élément de gauche est
   // associé à une réponse choisie dans une liste déroulante mélangée. ----
-  function renderAssociationQuestion(q, onSolved) {
+  function renderAssociationQuestion(q, onSolved, logFn) {
     const box = document.createElement('div');
 
     const paires = Array.isArray(q.paires) ? q.paires : [];
@@ -1031,10 +1040,12 @@
         feedback.className = 'exo-calc-feedback success';
         selects.forEach(s => { s.disabled = true; });
         validateBtn.disabled = true;
+        if (logFn) logFn(true);
         onSolved();
       } else {
         feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
         feedback.className = 'exo-calc-feedback error';
+        if (logFn) logFn(false);
       }
     });
 
@@ -1043,7 +1054,7 @@
 
   // ---- Une question de type "remise dans l'ordre" : les éléments sont
   // mélangés, et l'élève les réordonne avec des flèches ▲▼. ----
-  function renderOrdreQuestion(q, onSolved) {
+  function renderOrdreQuestion(q, onSolved, logFn) {
     const box = document.createElement('div');
 
     if (q.enonce) {
@@ -1145,10 +1156,12 @@
         locked = true;
         renderList();
         validateBtn.disabled = true;
+        if (logFn) logFn(true);
         onSolved();
       } else {
         feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
         feedback.className = 'exo-calc-feedback error';
+        if (logFn) logFn(false);
       }
     });
 
@@ -1157,7 +1170,7 @@
 
   // ---- Une question de type "classement par catégories" : chaque élément
   // est rangé dans la bonne catégorie via une liste déroulante. ----
-  function renderCategorieQuestion(q, onSolved) {
+  function renderCategorieQuestion(q, onSolved, logFn) {
     const box = document.createElement('div');
 
     if (q.enonce) {
@@ -1231,10 +1244,12 @@
         feedback.className = 'exo-calc-feedback success';
         selects.forEach(s => { s.disabled = true; });
         validateBtn.disabled = true;
+        if (logFn) logFn(true);
         onSolved();
       } else {
         feedback.textContent = 'Ce n\'est pas encore ça, réessaie.';
         feedback.className = 'exo-calc-feedback error';
+        if (logFn) logFn(false);
       }
     });
 
@@ -1357,18 +1372,43 @@
     }
     updateDoneButton();
 
+    // ---- Suivi pédagogique (facultatif) : temps passé + tentatives par
+    // question. Si les tables/colonnes correspondantes n'existent pas encore
+    // côté Supabase, on échoue silencieusement pour ne jamais bloquer
+    // l'élève — voir la doc fournie pour activer ce suivi.
+    const loadTime = Date.now();
+    let existingTemps = 0;
+    try {
+      const { data: myProg } = await supabaseClient
+        .from('progression').select('temps_secondes').eq('user_id', userId).eq('activite_id', a.id).maybeSingle();
+      existingTemps = (myProg && myProg.temps_secondes) || 0;
+    } catch (e) { /* colonne pas encore ajoutée : on continue sans le temps passé */ }
+
+    function logAttempt(questionIndex, exoType, reussi) {
+      supabaseClient.from('tentatives').insert({
+        user_id: userId, activite_id: a.id, question_index: questionIndex, exo_type: exoType, reussi
+      }).then(({ error }) => {
+        if (error) console.warn("Suivi des tentatives non actif (table 'tentatives' manquante ?) :", error.message);
+      });
+    }
+
     // Utilisé à la fois par le bouton "Marquer comme terminé" et par la
     // validation réussie d'un module d'exercice dans le contenu.
     async function markDone(value) {
+      const payload = { user_id: userId, activite_id: a.id, termine: value };
+      if (value && !isDone) {
+        const elapsed = Math.max(0, Math.min(Math.round((Date.now() - loadTime) / 1000), 3600));
+        payload.temps_secondes = existingTemps + elapsed;
+      }
       const { error } = await supabaseClient
         .from('progression')
-        .upsert({ user_id: userId, activite_id: a.id, termine: value }, { onConflict: 'user_id,activite_id' });
+        .upsert(payload, { onConflict: 'user_id,activite_id' });
       if (error) throw error;
       isDone = value;
       updateDoneButton();
     }
 
-    renderContent(a.contenu, { isDone, onExerciseSuccess: () => markDone(true) });
+    renderContent(a.contenu, { isDone, onExerciseSuccess: () => markDone(true), logAttempt });
 
     btnDone.addEventListener('click', async () => {
       btnDone.disabled = true;

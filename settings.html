@@ -413,6 +413,21 @@
       data: { prenom: prenomInput.value.trim(), nom: nomInput.value.trim() }
     });
 
+    if (!error) {
+      // Garde la table 'profiles' à jour, pour que les statistiques admin
+      // affichent toujours le nom le plus récent (échoue silencieusement si
+      // la table n'existe pas encore côté Supabase).
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        supabaseClient.from('profiles').upsert({
+          id: session.user.id,
+          prenom: prenomInput.value.trim(),
+          nom: nomInput.value.trim(),
+          email: session.user.email
+        }).then(() => {});
+      }
+    }
+
     btnSaveProfile.disabled = false;
     btnSaveProfile.textContent = 'Enregistrer';
 
